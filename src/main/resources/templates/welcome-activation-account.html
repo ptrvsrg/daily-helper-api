@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Welcome and Activate account</title>
+    <style>
+        .main {
+            object-fit: fill;
+            background-color: #f5f7fa;
+            border-bottom: 1px solid #e4ebf3;
+            padding: 80px 30px;
+            position: relative;
+            overflow: visible;
+        }
+
+        .header-container {
+            width: 100%;
+            max-width: 940px;
+            margin: 0 auto 40px;
+            padding-top: 0;
+        }
+
+        .header-image {
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .text-container {
+            margin-bottom: 10px;
+            margin-left: auto;
+            margin-right: auto;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, Helvetica Neue, Oxygen, Fira Sans, Droid Sans, sans-serif;
+            font-weight: 400;
+        }
+
+        .form-block {
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            display: flex;
+        }
+
+        .activation-button {
+            margin-bottom: 10px;
+            width: 100%;
+            color: #000;
+            text-align: center;
+            background-color: #77d4fc;
+            border: 1px #000;
+            padding: 10px 20px;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, Helvetica Neue, Oxygen, Fira Sans, Droid Sans, sans-serif;
+            font-size: 16px;
+            font-style: normal;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        @media screen and (max-width: 991px) {
+            .header-container {
+                max-width: 728px;
+            }
+        }
+
+        @media screen and (max-width: 767px) {
+            .main {
+                padding: 60px 15px;
+            }
+        }
+
+        @media screen and (max-width: 479px) {
+            .header-container {
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+<body>
+<main class="main">
+    <div class="header-container">
+        <img
+            class="header-image"
+            src="https://github.com/ptrvsrg/ptrvsrg/assets/90527574/e099ed8c-623f-48e1-b3f5-2a4e7d24c7c4">
+    </div>
+    <div class="text-container">Dear <strong><span th:text="${username}"></span></strong>,</div>
+    <div class="text-container">We are thrilled to welcome you to our community! Thank you for
+        choosing to join us. Your account has been successfully created, and we can&#x27;t wait for
+        you to start exploring all the exciting features and opportunities that await you.
+    </div>
+    <div class="text-container">To get started, simply click on the <strong>&quot;Activate My
+        Account&quot;</strong> button below. This step is crucial to ensure that you have full
+        access to our platform and can make the most out of your experience:
+    </div>
+    <div class="form-block w-form">
+        <form th:action="@{{host}/api/v1/auth/verify(host=${host})}"
+              method="get">
+            <input type="hidden"
+                   name="token"
+                   th:value="${token}">
+            <input type="submit"
+                   value="Activate My Account"
+                   class="activation-button">
+        </form>
+    </div>
+    <div class="text-container">If you did not expect to receive this email or have not recently
+        signed up with us, please disregard this message. Your security is important to us, and if
+        this email was unexpected, there&#x27;s no need to take any action.
+    </div>
+    <div class="text-container">We&#x27;re committed to providing you with an outstanding experience
+        and a supportive community. Should you encounter any issues or have questions, our dedicated
+        support team is here to assist you. Feel free to reach out to us by replying to this email.
+    </div>
+    <div class="text-container">Once again, welcome aboard! We can&#x27;t wait to see you thrive
+        within our community.
+    </div>
+    <div class="text-container">Best regards,</div>
+    <div class="text-container"><strong>The Daily Helper Team</strong></div>
+</main>
+</body>
+</html>
