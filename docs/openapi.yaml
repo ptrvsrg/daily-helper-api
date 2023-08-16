@@ -1,0 +1,1709 @@
+openapi: 3.0.1
+info:
+    title: Daily Helper API
+    version: 1.0.0
+    description: >-
+        This API exposes endpoints to manage the tasks of your projects.
+    contact:
+        email: s.petrov1@g.nsu.ru
+        name: Sergey Petrov
+        url: https://github.com/ptrvsrg
+servers:
+    -   url: http://localhost:8080
+        description: Locally deployed application
+tags:
+    -   name: Authentication and Verification
+        description: >-
+            API for registration, account login, email confirmation,
+            JWT token update and password reset
+    -   name: Profile
+        description: >-
+            API for displaying profile and updating first name,
+            last name and email
+    -   name: Projects
+        description: >-
+            API for creating, displaying, updating and deleting projects
+    -   name: Tasks
+        description: >-
+            API for creating, displaying, updating and deleting
+            tasks of project
+paths:
+    /api/v1/auth/register:
+        post:
+            tags:
+                - Authentication and Verification
+            summary: Registration
+            description: >-
+                Registers new account. After receiving the status OK,
+                you need to activate the account using the link from email,
+                otherwise the account will be deleted.
+            operationId: register
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RegisterRequest'
+                required: true
+            responses:
+                '201':
+                    description: CREATED - Successful registration
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RegisterResponse'
+                '400':
+                    description: >-
+                        BAD REQUEST - JSON format is not valid;
+                        Failed to send email
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                JSON format is not valid (compact response):
+                                    value:
+                                        message: JSON format is not valid
+                                        debugMessage: >-
+                                            JSON parse error: Unexpected character
+                                            ('"' (code 34)): was expecting comma to
+                                            separate Object entries
+                                JSON format is not valid (full response):
+                                    value:
+                                        message: JSON format is not valid
+                                        debugMessage: >-
+                                            Validation failed for argument [0] in public
+                                            <...> with 2 errors: <...>
+                                        error:
+                                            - Password is insecure
+                                            - Email has invalid format
+                                Failed to send email:
+                                    value:
+                                        message: Failed to send email
+                                        debugMessage: >-
+                                            jakarta.mail.AuthenticationFailedException:
+                                            535 5.7.8 Error: authentication failed:
+                                            Invalid user or password! <...>
+                '409':
+                    description: CONFLICT - User already exists
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                User already exists:
+                                    value:
+                                        message: >-
+                                            User ivan.ivanov@example.mail already exists
+                                        debugMessage: >-
+                                            User ivan.ivanov@example.mail already exists
+                '500':
+                    description: INTERNAL SERVER ERROR
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Internal server error:
+                                    value:
+                                        message: Internal server error
+                                        debugMessage: >-
+                                            JDBC exception executing SQL [<...>]; SQL [n/a]
+    /api/v1/auth/login:
+        post:
+            tags:
+                - Authentication and Verification
+            operationId: login
+            summary: Login
+            description: >-
+                Authorizes in the system. If the account is registered
+                and activated, then JWT tokens will be generated and sent.
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/LoginRequest'
+                required: true
+            responses:
+                '200':
+                    description: OK - Successful login
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/LoginResponse'
+                '400':
+                    description: BAD REQUEST - JSON format is not valid
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                JSON format is not valid (compact response):
+                                    value:
+                                        message: JSON format is not valid
+                                        debugMessage: >-
+                                            JSON parse error: Unexpected character
+                                            ('"' (code 34)): was expecting comma to
+                                            separate Object entries
+                                JSON format is not valid (full response):
+                                    value:
+                                        message: JSON format is not valid
+                                        debugMessage: >-
+                                            Validation failed for argument [0] in public
+                                            <...> with 2 errors: <...>
+                                        error:
+                                            - Password is insecure
+                                            - Email has invalid format
+                '401':
+                    description: UNAUTHORIZED - User is disabled
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                User is disabled:
+                                    value:
+                                        message: User is disabled
+                                        debugMessage: User is disabled
+                '404':
+                    description: NOT FOUND - User not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                User not found:
+                                    value:
+                                        message: >-
+                                            User ivan.ivanov@example.mail not found
+                                        debugMessage: >-
+                                            User ivan.ivanov@example.mail not found
+                '500':
+                    description: INTERNAL SERVER ERROR
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Internal server error:
+                                    value:
+                                        message: Internal server error
+                                        debugMessage: >-
+                                            JDBC exception executing SQL [<...>]; SQL [n/a]
+    /api/v1/auth/verify:
+        get:
+            tags:
+                - Authentication and Verification
+            operationId: verify
+            summary: Verification via email
+            description: >-
+                Verifies the account via email. When you click on this link
+                from a letter in the mail, the account is activated by
+                the verification token
+            parameters:
+                -   name: token
+                    in: query
+                    required: true
+                    schema:
+                        type: string
+                        format: uuid
+                        example: e58ed763-928c-4155-bee9-fdbaaadc15f3
+            responses:
+                '200':
+                    description: OK - Successful verification
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RegisterResponse'
+                            example:
+                                id: 1
+                                firstName: Ivan
+                                lastName: Ivanov
+                                email: ivan.ivanov@example.mail
+                                isActive: true
+                '400':
+                    description: >-
+                        BAD REQUEST - Missing required request parameter
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Missing required request parameter:
+                                    value:
+                                        message: Missing required request parameter
+                                        debugMessage: >-
+                                            Required request parameter 'token' for method
+                                            parameter type String is not present
+                '404':
+                    description: NOT FOUND - Verification token not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Verification token not found:
+                                    value:
+                                        message: >-
+                                            Verification token
+                                            5e089cd7-891d-4541-84fa-e88f3f696b3b
+                                            not found
+                                        debugMessage: >-
+                                            Verification token
+                                            5e089cd7-891d-4541-84fa-e88f3f696b3b
+                                            not found
+                '500':
+                    description: INTERNAL SERVER ERROR
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Internal server error:
+                                    value:
+                                        message: Internal server error
+                                        debugMessage: >-
+                                            JDBC exception executing SQL [<...>]; SQL [n/a]
+    /api/v1/auth/refresh-tokens:
+        get:
+            tags:
+                - Authentication and Verification
+            operationId: refreshTokens
+            summary: Refresh JWT tokens
+            description: >-
+                Generates a new pair of JWT access tokens and refresh based
+                on a valid refresh token. If the refresh token is not valid
+                or outdated, you will have to log in again.
+            parameters:
+                -   name: token
+                    in: query
+                    required: true
+                    schema:
+                        type: string
+                        format: uuid
+                        example: e58ed763-928c-4155-bee9-fdbaaadc15f3
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RefreshTokensResponse'
+                '400':
+                    description: >-
+                        BAD REQUEST - Missing required request parameter;
+                        Refresh token is not valid or outdated
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Missing required request parameter:
+                                    value:
+                                        message: Missing required request parameter
+                                        debugMessage: >-
+                                            Required request parameter 'token' for method
+                                            parameter type String is not present
+                                Refresh token is not valid or outdated:
+                                    value:
+                                        message: >-
+                                            Refresh token
+                                            e58ed763-928c-4155-bee9-fdbaaadc15f3
+                                            is not valid or outdated
+                                        debugMessage: >-
+                                            Refresh token
+                                            e58ed763-928c-4155-bee9-fdbaaadc15f3
+                                            is not valid or outdated
+                '500':
+                    description: INTERNAL SERVER ERROR
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Internal server error:
+                                    value:
+                                        message: Internal server error
+                                        debugMessage: >-
+                                            JDBC exception executing SQL [<...>]; SQL [n/a]
+    /api/v1/auth/reset-password:
+        post:
+            tags:
+                - Authentication and Verification
+            operationId: resetPassword
+            summary: Reset password
+            description: >-
+                Resets the account password. The user is deactivated and
+                the old password is erased, and an email with a verification
+                link is sent to the email. The account will not be deleted
+                after the verification token becomes obsolete.
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ResetPasswordRequest'
+                required: true
+            responses:
+                '200':
+                    description: OK - Successful password update
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RegisterResponse'
+                '400':
+                    description: >-
+                        BAD REQUEST - JSON format is not valid;
+                        Failed to send email
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                JSON format is not valid (compact response):
+                                    value:
+                                        message: JSON format is not valid
+                                        debugMessage: >-
+                                            JSON parse error: Unexpected character
+                                            ('"' (code 34)): was expecting comma to
+                                            separate Object entries
+                                JSON format is not valid (full response):
+                                    value:
+                                        message: JSON format is not valid
+                                        debugMessage: >-
+                                            Validation failed for argument [0] in public
+                                            <...> with 2 errors: <...>
+                                        error:
+                                            - Password is insecure
+                                            - Email has invalid format
+                                Failed to send email:
+                                    value:
+                                        message: Failed to send email
+                                        debugMessage: >-
+                                            jakarta.mail.AuthenticationFailedException:
+                                            535 5.7.8 Error: authentication failed:
+                                            Invalid user or password! <...>
+                '404':
+                    description: NOT FOUND - User not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                User not found:
+                                    value:
+                                        message: User ivan.ivanov@example.mail not found
+                                        debugMessage: >-
+                                            User ivan.ivanov@example.mail not found
+                '500':
+                    description: INTERNAL SERVER ERROR
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Internal server error:
+                                    value:
+                                        message: Internal server error
+                                        debugMessage: >-
+                                            JDBC exception executing SQL [<...>]; SQL [n/a]
+    /api/v1/profile:
+        get:
+            tags:
+                - Profile
+            operationId: showProfile
+            summary: Show profile
+            description: Shows profile of the authorized user.
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ProfileResponse'
+                '401':
+                    description: >-
+                        UNAUTHORIZED - Failed to authenticate;
+                        Access token is not valid or outdated
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Failed to authenticate:
+                                    value:
+                                        message: Failed to authenticate
+                                        debugMessage: >-
+                                            Full authentication is required to access
+                                            this resource
+                                Access token is not valid or outdated:
+                                    value:
+                                        message: >-
+                                            Access token
+                                            eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEzMzciLCJ1c2VybmFtZSI6ImJpem9uZSIsImlhdCI6MTU5NDIwOTYwMCwicm9sZSI6InVzZXIifQ.ZvkYYnyM929FM4NW9_hSis7_x3_9rymsDAx9yuOcc1I
+                                            is not valid or outdated
+                                        debugMessage: >-
+                                            Access token
+                                            eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEzMzciLCJ1c2VybmFtZSI6ImJpem9uZSIsImlhdCI6MTU5NDIwOTYwMCwicm9sZSI6InVzZXIifQ.ZvkYYnyM929FM4NW9_hSis7_x3_9rymsDAx9yuOcc1I
+                                            is not valid or outdated
+                '500':
+                    description: INTERNAL SERVER ERROR
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Internal server error:
+                                    value:
+                                        message: Internal server error
+                                        debugMessage: >-
+                                            JDBC exception executing SQL [<...>]; SQL [n/a]
+            security:
+                -   bearerAuth: [ ]
+    /api/v1/profile/edit/name:
+        put:
+            tags:
+                - Profile
+            operationId: changeName
+            summary: Change first and last name
+            description: Sets new first and last name of authorized user.
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ChangeNameRequest'
+                required: true
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ProfileResponse'
+                            example:
+                                id: 1
+                                firstName: Petr
+                                lastName: Petrov
+                                email: ivan.ivanov@example.mail
+                                isActive: true
+                '400':
+                    description: BAD REQUEST - JSON format is not valid
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                JSON format is not valid (compact response):
+                                    value:
+                                        message: JSON format is not valid
+                                        debugMessage: >-
+                                            JSON parse error: Unexpected character
+                                            ('"' (code 34)): was expecting comma to
+                                            separate Object entries
+                                JSON format is not valid (full response):
+                                    value:
+                                        message: JSON format is not valid
+                                        debugMessage: >-
+                                            Validation failed for argument [0] in public
+                                            <...> with 1 errors: <...>
+                                        error:
+                                            - First name cannot be null or whitespace
+                '401':
+                    description: >-
+                        UNAUTHORIZED - Failed to authenticate;
+                        Access token is not valid or outdated
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Failed to authenticate:
+                                    value:
+                                        message: Failed to authenticate
+                                        debugMessage: >-
+                                            Full authentication is required to access
+                                            this resource
+                                Access token is not valid or outdated:
+                                    value:
+                                        message: >-
+                                            Access token
+                                            eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEzMzciLCJ1c2VybmFtZSI6ImJpem9uZSIsImlhdCI6MTU5NDIwOTYwMCwicm9sZSI6InVzZXIifQ.ZvkYYnyM929FM4NW9_hSis7_x3_9rymsDAx9yuOcc1I
+                                            is not valid or outdated
+                                        debugMessage: >-
+                                            Access token
+                                            eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEzMzciLCJ1c2VybmFtZSI6ImJpem9uZSIsImlhdCI6MTU5NDIwOTYwMCwicm9sZSI6InVzZXIifQ.ZvkYYnyM929FM4NW9_hSis7_x3_9rymsDAx9yuOcc1I
+                                            is not valid or outdated
+                '404':
+                    description: NOT FOUND - User not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                User not found:
+                                    value:
+                                        message: User ivan.ivanov@example.mail not found
+                                        debugMessage: User ivan.ivanov@example.mail not found
+                '500':
+                    description: INTERNAL SERVER ERROR
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Internal server error:
+                                    value:
+                                        message: Internal server error
+                                        debugMessage: >-
+                                            JDBC exception executing SQL [<...>]; SQL [n/a]
+            security:
+                -   bearerAuth: [ ]
+    /api/v1/projects:
+        post:
+            tags:
+                - Projects
+            operationId: createProject
+            summary: Create project
+            description: >-
+                Creates project with unique name and optional description
+                for the authorized user.
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ProjectRequest'
+                required: true
+            responses:
+                '201':
+                    description: CREATED - Successful project creation
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ProjectResponse'
+                '400':
+                    description: BAD REQUEST - JSON format is not valid
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                JSON format is not valid (compact response):
+                                    value:
+                                        message: JSON format is not valid
+                                        debugMessage: >-
+                                            JSON parse error: Unexpected character
+                                            ('"' (code 34)): was expecting comma to
+                                            separate Object entries
+                                JSON format is not valid (full response):
+                                    value:
+                                        message: JSON format is not valid
+                                        debugMessage: >-
+                                            Validation failed for argument [0] in public
+                                            <...> with 1 errors: <...>
+                                        error:
+                                            - Project name cannot be null or whitespace
+                '401':
+                    description: >-
+                        UNAUTHORIZED - Failed to authenticate;
+                        Access token is not valid or outdated
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Failed to authenticate:
+                                    value:
+                                        message: Failed to authenticate
+                                        debugMessage: >-
+                                            Full authentication is required to access
+                                            this resource
+                                Access token is not valid or outdated:
+                                    value:
+                                        message: >-
+                                            Access token
+                                            eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEzMzciLCJ1c2VybmFtZSI6ImJpem9uZSIsImlhdCI6MTU5NDIwOTYwMCwicm9sZSI6InVzZXIifQ.ZvkYYnyM929FM4NW9_hSis7_x3_9rymsDAx9yuOcc1I
+                                            is not valid or outdated
+                                        debugMessage: >-
+                                            Access token
+                                            eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEzMzciLCJ1c2VybmFtZSI6ImJpem9uZSIsImlhdCI6MTU5NDIwOTYwMCwicm9sZSI6InVzZXIifQ.ZvkYYnyM929FM4NW9_hSis7_x3_9rymsDAx9yuOcc1I
+                                            is not valid or outdated
+                '404':
+                    description: NOT FOUND - User not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                User not found:
+                                    value:
+                                        message: User ivan.ivanov@example.mail not found
+                                        debugMessage: User ivan.ivanov@example.mail not found
+                '409':
+                    description: CONFLICT - Project already exists
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Project already exists:
+                                    value:
+                                        message: Project Calculator already exists
+                                        debugMessage: Project Calculator already exists
+                '500':
+                    description: INTERNAL SERVER ERROR
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Internal server error:
+                                    value:
+                                        message: Internal server error
+                                        debugMessage: >-
+                                            JDBC exception executing SQL [<...>]; SQL [n/a]
+            security:
+                -   bearerAuth: [ ]
+        get:
+            tags:
+                - Projects
+            operationId: showProjects
+            summary: Show all projects
+            description: Shows all projects for the authorized user.
+            responses:
+                '200':
+                    description: OK - Successful reading of projects
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/ProjectResponse'
+                '401':
+                    description: >-
+                        UNAUTHORIZED - Failed to authenticate;
+                        Access token is not valid or outdated
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Failed to authenticate:
+                                    value:
+                                        message: Failed to authenticate
+                                        debugMessage: >-
+                                            Full authentication is required to access
+                                            this resource
+                                Access token is not valid or outdated:
+                                    value:
+                                        message: >-
+                                            Access token
+                                            eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEzMzciLCJ1c2VybmFtZSI6ImJpem9uZSIsImlhdCI6MTU5NDIwOTYwMCwicm9sZSI6InVzZXIifQ.ZvkYYnyM929FM4NW9_hSis7_x3_9rymsDAx9yuOcc1I
+                                            is not valid or outdated
+                                        debugMessage: >-
+                                            Access token
+                                            eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEzMzciLCJ1c2VybmFtZSI6ImJpem9uZSIsImlhdCI6MTU5NDIwOTYwMCwicm9sZSI6InVzZXIifQ.ZvkYYnyM929FM4NW9_hSis7_x3_9rymsDAx9yuOcc1I
+                                            is not valid or outdated
+                '500':
+                    description: INTERNAL SERVER ERROR
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Internal server error:
+                                    value:
+                                        message: Internal server error
+                                        debugMessage: >-
+                                            JDBC exception executing SQL [<...>]; SQL [n/a]
+            security:
+                -   bearerAuth: [ ]
+    /api/v1/projects/{projectName}:
+        get:
+            tags:
+                - Projects
+            operationId: showProject
+            summary: Show project
+            description: Shows project by name for authorized user.
+            parameters:
+                -   name: projectName
+                    in: path
+                    required: true
+                    schema:
+                        type: string
+                        example: Calculator
+            responses:
+                '200':
+                    description: OK - Successful reading of project
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ProjectResponse'
+                '401':
+                    description: >-
+                        UNAUTHORIZED - Failed to authenticate;
+                        Access token is not valid or outdated
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Failed to authenticate:
+                                    value:
+                                        message: Failed to authenticate
+                                        debugMessage: >-
+                                            Full authentication is required to access
+                                            this resource
+                                Access token is not valid or outdated:
+                                    value:
+                                        message: >-
+                                            Access token
+                                            eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEzMzciLCJ1c2VybmFtZSI6ImJpem9uZSIsImlhdCI6MTU5NDIwOTYwMCwicm9sZSI6InVzZXIifQ.ZvkYYnyM929FM4NW9_hSis7_x3_9rymsDAx9yuOcc1I
+                                            is not valid or outdated
+                                        debugMessage: >-
+                                            Access token
+                                            eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEzMzciLCJ1c2VybmFtZSI6ImJpem9uZSIsImlhdCI6MTU5NDIwOTYwMCwicm9sZSI6InVzZXIifQ.ZvkYYnyM929FM4NW9_hSis7_x3_9rymsDAx9yuOcc1I
+                                            is not valid or outdated
+                '404':
+                    description: >-
+                        NOT FOUND - Endpoint not found; Project not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Endpoint not found:
+                                    value:
+                                        message: Endpoint not found
+                                        debugMessage: No endpoint GET /api/v1/projects/.
+                                Project not found:
+                                    value:
+                                        message: Project Calculator not found
+                                        debugMessage: Project Calculator not found
+                '500':
+                    description: INTERNAL SERVER ERROR
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Internal server error:
+                                    value:
+                                        message: Internal server error
+                                        debugMessage: >-
+                                            JDBC exception executing SQL [<...>]; SQL [n/a]
+            security:
+                -   bearerAuth: [ ]
+        put:
+            tags:
+                - Projects
+            operationId: updateProject
+            summary: Update project
+            description: >-
+                Changes project name and description for the authorized user.
+            parameters:
+                -   name: projectName
+                    in: path
+                    required: true
+                    schema:
+                        type: string
+                        example: Calculator
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ProjectRequest'
+                        example:
+                            name: Calculator C++
+                            description: Reverse polish entry calculator in C++
+                required: true
+            responses:
+                '200':
+                    description: OK - Successful project update
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ProjectResponse'
+                            example:
+                                id: 1
+                                name: Calculator C++
+                                description: Reverse polish entry calculator in C++
+                '400':
+                    description: BAD REQUEST - JSON format is not valid
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                JSON format is not valid (compact response):
+                                    value:
+                                        message: JSON format is not valid
+                                        debugMessage: >-
+                                            JSON parse error: Unexpected character
+                                            ('"' (code 34)): was expecting comma to
+                                            separate Object entries
+                                JSON format is not valid (full response):
+                                    value:
+                                        message: JSON format is not valid
+                                        debugMessage: >-
+                                            Validation failed for argument [0] in public
+                                            <...> with 1 errors: <...>
+                                        error:
+                                            - Project name cannot be null or whitespace
+                '401':
+                    description: >-
+                        UNAUTHORIZED - Failed to authenticate;
+                        Access token is not valid or outdated
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Failed to authenticate:
+                                    value:
+                                        message: Failed to authenticate
+                                        debugMessage: >-
+                                            Full authentication is required to access
+                                            this resource
+                                Access token is not valid or outdated:
+                                    value:
+                                        message: >-
+                                            Access token
+                                            eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEzMzciLCJ1c2VybmFtZSI6ImJpem9uZSIsImlhdCI6MTU5NDIwOTYwMCwicm9sZSI6InVzZXIifQ.ZvkYYnyM929FM4NW9_hSis7_x3_9rymsDAx9yuOcc1I
+                                            is not valid or outdated
+                                        debugMessage: >-
+                                            Access token
+                                            eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEzMzciLCJ1c2VybmFtZSI6ImJpem9uZSIsImlhdCI6MTU5NDIwOTYwMCwicm9sZSI6InVzZXIifQ.ZvkYYnyM929FM4NW9_hSis7_x3_9rymsDAx9yuOcc1I
+                                            is not valid or outdated
+                '404':
+                    description: >-
+                        NOT FOUND - Endpoint not found; Project not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Endpoint not found:
+                                    value:
+                                        message: Endpoint not found
+                                        debugMessage: No endpoint GET /api/v1/projects/.
+                                Project not found:
+                                    value:
+                                        message: Project Calculator not found
+                                        debugMessage: Project Calculator not found
+                '409':
+                    description: CONFLICT - Project already exists
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Project already exists:
+                                    value:
+                                        message: Project Calculator C++ already exists
+                                        debugMessage: >-
+                                            Project Calculator C++ already exists
+                '500':
+                    description: INTERNAL SERVER ERROR
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Internal server error:
+                                    value:
+                                        message: Internal server error
+                                        debugMessage: >-
+                                            JDBC exception executing SQL [<...>]; SQL [n/a]
+            security:
+                -   bearerAuth: [ ]
+        delete:
+            tags:
+                - Projects
+            operationId: deleteProject
+            summary: Delete project
+            description: Deletes project by name for authorized user.
+            parameters:
+                -   name: projectName
+                    in: path
+                    required: true
+                    schema:
+                        type: string
+                        example: Calculator
+            responses:
+                '204':
+                    description: NO CONTENT - Successful deletion of the project
+                '401':
+                    description: >-
+                        UNAUTHORIZED - Failed to authenticate;
+                        Access token is not valid or outdated
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Failed to authenticate:
+                                    value:
+                                        message: Failed to authenticate
+                                        debugMessage: >-
+                                            Full authentication is required to access
+                                            this resource
+                                Access token is not valid or outdated:
+                                    value:
+                                        message: >-
+                                            Access token
+                                            eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEzMzciLCJ1c2VybmFtZSI6ImJpem9uZSIsImlhdCI6MTU5NDIwOTYwMCwicm9sZSI6InVzZXIifQ.ZvkYYnyM929FM4NW9_hSis7_x3_9rymsDAx9yuOcc1I
+                                            is not valid or outdated
+                                        debugMessage: >-
+                                            Access token
+                                            eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEzMzciLCJ1c2VybmFtZSI6ImJpem9uZSIsImlhdCI6MTU5NDIwOTYwMCwicm9sZSI6InVzZXIifQ.ZvkYYnyM929FM4NW9_hSis7_x3_9rymsDAx9yuOcc1I
+                                            is not valid or outdated
+                '404':
+                    description: >-
+                        NOT FOUND - Endpoint not found; Project not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Endpoint not found:
+                                    value:
+                                        message: Endpoint not found
+                                        debugMessage: No endpoint GET /api/v1/projects/.
+                                Project not found:
+                                    value:
+                                        message: Project Calculator not found
+                                        debugMessage: Project Calculator not found
+                '500':
+                    description: INTERNAL SERVER ERROR
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Internal server error:
+                                    value:
+                                        message: Internal server error
+                                        debugMessage: >-
+                                            JDBC exception executing SQL [<...>]; SQL [n/a]
+            security:
+                -   bearerAuth: [ ]
+    /api/v1/projects/{projectName}/tasks:
+        post:
+            tags:
+                - Tasks
+            operationId: createTask
+            summary: Create task of project
+            description: Creates task of project for authorized user.
+            parameters:
+                -   name: projectName
+                    in: path
+                    required: true
+                    schema:
+                        type: string
+                        example: Calculator
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/TaskRequest'
+                required: true
+            responses:
+                '201':
+                    description: >-
+                        CREATED - Successful creation of the project task
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TaskResponse'
+                '400':
+                    description: BAD REQUEST - JSON format is not valid
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                JSON format is not valid (compact response):
+                                    value:
+                                        message: JSON format is not valid
+                                        debugMessage: >-
+                                            JSON parse error: Unexpected character
+                                            ('"' (code 34)): was expecting comma to
+                                            separate Object entries
+                                JSON format is not valid (full response):
+                                    value:
+                                        message: JSON format is not valid
+                                        debugMessage: >-
+                                            Validation failed for argument [0] in public
+                                            <...> with 1 errors: <...>
+                                        error:
+                                            - Task name cannot be null or whitespace
+                '401':
+                    description: >-
+                        UNAUTHORIZED - Failed to authenticate;
+                        Access token is not valid or outdated
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Failed to authenticate:
+                                    value:
+                                        message: Failed to authenticate
+                                        debugMessage: >-
+                                            Full authentication is required to access
+                                            this resource
+                                Access token is not valid or outdated:
+                                    value:
+                                        message: >-
+                                            Access token
+                                            eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEzMzciLCJ1c2VybmFtZSI6ImJpem9uZSIsImlhdCI6MTU5NDIwOTYwMCwicm9sZSI6InVzZXIifQ.ZvkYYnyM929FM4NW9_hSis7_x3_9rymsDAx9yuOcc1I
+                                            is not valid or outdated
+                                        debugMessage: >-
+                                            Access token
+                                            eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEzMzciLCJ1c2VybmFtZSI6ImJpem9uZSIsImlhdCI6MTU5NDIwOTYwMCwicm9sZSI6InVzZXIifQ.ZvkYYnyM929FM4NW9_hSis7_x3_9rymsDAx9yuOcc1I
+                                            is not valid or outdated
+                '404':
+                    description: NOT FOUND - Project not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Project not found:
+                                    value:
+                                        message: Project Calculator not found
+                                        debugMessage: Project Calculator not found
+                '500':
+                    description: INTERNAL SERVER ERROR
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Internal server error:
+                                    value:
+                                        message: Internal server error
+                                        debugMessage: >-
+                                            JDBC exception executing SQL [<...>]; SQL [n/a]
+            security:
+                -   bearerAuth: [ ]
+        get:
+            tags:
+                - Tasks
+            operationId: showTasks
+            summary: Show all tasks of project
+            description: >-
+                Shows all tasks of project for the authorized user.
+            parameters:
+                -   name: projectName
+                    in: path
+                    required: true
+                    schema:
+                        type: string
+                        example: Calculator
+            responses:
+                '200':
+                    description: OK - Successful reading of project tasks
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/TaskResponse'
+                '401':
+                    description: >-
+                        UNAUTHORIZED - Failed to authenticate;
+                        Access token is not valid or outdated
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Failed to authenticate:
+                                    value:
+                                        message: Failed to authenticate
+                                        debugMessage: >-
+                                            Full authentication is required to access
+                                            this resource
+                                Access token is not valid or outdated:
+                                    value:
+                                        message: >-
+                                            Access token
+                                            eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEzMzciLCJ1c2VybmFtZSI6ImJpem9uZSIsImlhdCI6MTU5NDIwOTYwMCwicm9sZSI6InVzZXIifQ.ZvkYYnyM929FM4NW9_hSis7_x3_9rymsDAx9yuOcc1I
+                                            is not valid or outdated
+                                        debugMessage: >-
+                                            Access token
+                                            eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEzMzciLCJ1c2VybmFtZSI6ImJpem9uZSIsImlhdCI6MTU5NDIwOTYwMCwicm9sZSI6InVzZXIifQ.ZvkYYnyM929FM4NW9_hSis7_x3_9rymsDAx9yuOcc1I
+                                            is not valid or outdated
+                '404':
+                    description: NOT FOUND - Project not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Project not found:
+                                    value:
+                                        message: Project Calculator not found
+                                        debugMessage: Project Calculator not found
+                '500':
+                    description: INTERNAL SERVER ERROR
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Internal server error:
+                                    value:
+                                        message: Internal server error
+                                        debugMessage: >-
+                                            JDBC exception executing SQL [<...>]; SQL [n/a]
+            security:
+                -   bearerAuth: [ ]
+    /api/v1/projects/{projectName}/tasks/{taskId}:
+        get:
+            tags:
+                - Tasks
+            operationId: showTask
+            summary: Show task of project
+            description: Shows task of project by name for authorized user.
+            parameters:
+                -   name: projectName
+                    in: path
+                    required: true
+                    schema:
+                        type: string
+                        example: Calculator
+                -   name: taskId
+                    in: path
+                    required: true
+                    schema:
+                        type: integer
+                        format: int64
+                        example: 1
+            responses:
+                '200':
+                    description: OK - Successful reading of project task
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TaskResponse'
+                '401':
+                    description: >-
+                        UNAUTHORIZED - Failed to authenticate;
+                        Access token is not valid or outdated
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Failed to authenticate:
+                                    value:
+                                        message: Failed to authenticate
+                                        debugMessage: >-
+                                            Full authentication is required to access
+                                            this resource
+                                Access token is not valid or outdated:
+                                    value:
+                                        message: >-
+                                            Access token
+                                            eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEzMzciLCJ1c2VybmFtZSI6ImJpem9uZSIsImlhdCI6MTU5NDIwOTYwMCwicm9sZSI6InVzZXIifQ.ZvkYYnyM929FM4NW9_hSis7_x3_9rymsDAx9yuOcc1I
+                                            is not valid or outdated
+                                        debugMessage: >-
+                                            Access token
+                                            eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEzMzciLCJ1c2VybmFtZSI6ImJpem9uZSIsImlhdCI6MTU5NDIwOTYwMCwicm9sZSI6InVzZXIifQ.ZvkYYnyM929FM4NW9_hSis7_x3_9rymsDAx9yuOcc1I
+                                            is not valid or outdated
+                '404':
+                    description: NOT FOUND - Project not found; Task not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Project not found:
+                                    value:
+                                        message: Project Calculator not found
+                                        debugMessage: Project Calculator not found
+                                Task not found:
+                                    value:
+                                        message: "Task #1 not found"
+                                        debugMessage: "Task #1 not found"
+                '500':
+                    description: INTERNAL SERVER ERROR
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Internal server error:
+                                    value:
+                                        message: Internal server error
+                                        debugMessage: >-
+                                            JDBC exception executing SQL [<...>]; SQL [n/a]
+            security:
+                -   bearerAuth: [ ]
+        put:
+            tags:
+                - Tasks
+            operationId: updateTask
+            summary: Update task of project
+            description: Changes task name and description for the authorized user.
+            parameters:
+                -   name: projectName
+                    in: path
+                    required: true
+                    schema:
+                        type: string
+                        example: Calculator
+                -   name: taskId
+                    in: path
+                    required: true
+                    schema:
+                        type: integer
+                        format: int64
+                        example: 1
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/TaskRequest'
+                        example:
+                            name: Write main algorithm in C++
+                            description: >-
+                                Write an algorithm for reverse polish notation in C++
+                required: true
+            responses:
+                '200':
+                    description: OK - Successful update of project task
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TaskResponse'
+                            example:
+                                id: 1
+                                name: Write main algorithm in C++
+                                description: >-
+                                    Write an algorithm for reverse polish notation in C++
+                '401':
+                    description: >-
+                        UNAUTHORIZED - Failed to authenticate;
+                        Access token is not valid or outdated
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Failed to authenticate:
+                                    value:
+                                        message: Failed to authenticate
+                                        debugMessage: >-
+                                            Full authentication is required to access
+                                            this resource
+                                Access token is not valid or outdated:
+                                    value:
+                                        message: >-
+                                            Access token
+                                            eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEzMzciLCJ1c2VybmFtZSI6ImJpem9uZSIsImlhdCI6MTU5NDIwOTYwMCwicm9sZSI6InVzZXIifQ.ZvkYYnyM929FM4NW9_hSis7_x3_9rymsDAx9yuOcc1I
+                                            is not valid or outdated
+                                        debugMessage: >-
+                                            Access token
+                                            eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEzMzciLCJ1c2VybmFtZSI6ImJpem9uZSIsImlhdCI6MTU5NDIwOTYwMCwicm9sZSI6InVzZXIifQ.ZvkYYnyM929FM4NW9_hSis7_x3_9rymsDAx9yuOcc1I
+                                            is not valid or outdated
+                '404':
+                    description: NOT FOUND - Project not found; Task not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Project not found:
+                                    value:
+                                        message: Project Calculator not found
+                                        debugMessage: Project Calculator not found
+                                Task not found:
+                                    value:
+                                        message: "Task #1 not found"
+                                        debugMessage: "Task #1 not found"
+                '500':
+                    description: INTERNAL SERVER ERROR
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Internal server error:
+                                    value:
+                                        message: Internal server error
+                                        debugMessage: >-
+                                            JDBC exception executing SQL [<...>]; SQL [n/a]
+            security:
+                -   bearerAuth: [ ]
+        delete:
+            tags:
+                - Tasks
+            operationId: deleteTask
+            summary: Delete task of project
+            description: >-
+                Deletes task of project by name for authorized user.
+            parameters:
+                -   name: projectName
+                    in: path
+                    required: true
+                    schema:
+                        type: string
+                        example: Calculator
+                -   name: taskId
+                    in: path
+                    required: true
+                    schema:
+                        type: integer
+                        format: int64
+                        example: 1
+            responses:
+                '204':
+                    description: >-
+                        NO CONTENT - Successful deletion of project task
+                '401':
+                    description: >-
+                        UNAUTHORIZED - Failed to authenticate;
+                        Access token is not valid or outdated
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Failed to authenticate:
+                                    value:
+                                        message: Failed to authenticate
+                                        debugMessage: >-
+                                            Full authentication is required to access
+                                            this resource
+                                Access token is not valid or outdated:
+                                    value:
+                                        message: >-
+                                            Access token
+                                            eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEzMzciLCJ1c2VybmFtZSI6ImJpem9uZSIsImlhdCI6MTU5NDIwOTYwMCwicm9sZSI6InVzZXIifQ.ZvkYYnyM929FM4NW9_hSis7_x3_9rymsDAx9yuOcc1I
+                                            is not valid or outdated
+                                        debugMessage: >-
+                                            Access token
+                                            eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEzMzciLCJ1c2VybmFtZSI6ImJpem9uZSIsImlhdCI6MTU5NDIwOTYwMCwicm9sZSI6InVzZXIifQ.ZvkYYnyM929FM4NW9_hSis7_x3_9rymsDAx9yuOcc1I
+                                            is not valid or outdated
+                '404':
+                    description: NOT FOUND - Project not found; Task not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Project not found:
+                                    value:
+                                        message: Project Calculator not found
+                                        debugMessage: Project Calculator not found
+                                Task not found:
+                                    value:
+                                        message: "Task #1 not found"
+                                        debugMessage: "Task #1 not found"
+                '500':
+                    description: INTERNAL SERVER ERROR
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Internal server error:
+                                    value:
+                                        message: Internal server error
+                                        debugMessage: >-
+                                            JDBC exception executing SQL [<...>]; SQL [n/a]
+            security:
+                -   bearerAuth: [ ]
+components:
+    schemas:
+        ErrorResponse:
+            required:
+                - debugMessage
+                - message
+            type: object
+            properties:
+                message:
+                    type: string
+                    description: Message about problem
+                    example: JSON format is not valid
+                debugMessage:
+                    type: string
+                    description: Debug message about problem
+                    example: >-
+                        Validation failed for argument [0] in public <...> with 2 errors:
+                        <...>
+                errors:
+                    type: array
+                    items:
+                        type: string
+                        description: Error specifying the problem
+                        example: Password is insecure
+                    description: List of errors specifying the problem
+                    example:
+                        - Password is insecure
+                        - Email has invalid format
+        RegisterRequest:
+            required:
+                - email
+                - firstName
+                - lastName
+                - password
+            type: object
+            properties:
+                firstName:
+                    type: string
+                    description: User first name
+                    example: Ivan
+                lastName:
+                    type: string
+                    description: User last name
+                    example: Ivanov
+                email:
+                    type: string
+                    format: email
+                    description: User email
+                    example: ivan.ivanov@example.mail
+                password:
+                    type: string
+                    pattern: ^(?=.*[0-9])(?=.*[a-zA-Z])(?=\S+$).{8,}$
+                    description: Account password
+                    example: ivanov10
+        RegisterResponse:
+            required:
+                - email
+                - id
+                - isActive
+                - firstName
+                - lastName
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                    description: User ID
+                    example: 1
+                firstName:
+                    type: string
+                    description: User first name
+                    example: Ivan
+                lastName:
+                    type: string
+                    description: User last name
+                    example: Ivanov
+                email:
+                    type: string
+                    format: email
+                    description: User email
+                    example: ivan.ivanov@example.mail
+                isActive:
+                    type: boolean
+                    description: Is the user activated?
+                    example: false
+        LoginRequest:
+            required:
+                - email
+                - password
+            type: object
+            properties:
+                email:
+                    type: string
+                    format: email
+                    description: User email
+                    example: ivan.ivanov@example.mail
+                password:
+                    type: string
+                    pattern: ^(?=.*[0-9])(?=.*[a-zA-Z])(?=\S+$).{8,}$
+                    description: Account password
+                    example: ivanov10
+        LoginResponse:
+            required:
+                - accessToken
+                - email
+                - firstName
+                - id
+                - isActive
+                - lastName
+                - refreshToken
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                    description: User ID
+                    example: 1
+                firstName:
+                    type: string
+                    description: User first name
+                    example: Ivan
+                lastName:
+                    type: string
+                    description: User last name
+                    example: Ivanov
+                email:
+                    type: string
+                    format: email
+                    description: User email
+                    example: ivan.ivanov@example.mail
+                isActive:
+                    type: boolean
+                    description: Is the user activated?
+                    example: true
+                accessToken:
+                    type: string
+                    format: JWT
+                    description: JWT access token
+                    example: >-
+                        eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEzMzciLCJ1c2VybmFtZSI6ImJpem9uZSIsImlhdCI6MTU5NDIwOTYwMCwicm9sZSI6InVzZXIifQ.ZvkYYnyM929FM4NW9_hSis7_x3_9rymsDAx9yuOcc1I
+                refreshToken:
+                    type: string
+                    format: uuid
+                    description: JWT refresh token
+                    example: e58ed763-928c-4155-bee9-fdbaaadc15f3
+        RefreshTokensResponse:
+            required:
+                - accessToken
+                - refreshToken
+            type: object
+            properties:
+                accessToken:
+                    type: string
+                    format: JWT
+                    description: JWT access token
+                    example: >-
+                        eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEzMzciLCJ1c2VybmFtZSI6ImJpem9uZSIsImlhdCI6MTU5NDIwOTYwMCwicm9sZSI6InVzZXIifQ.ZvkYYnyM929FM4NW9_hSis7_x3_9rymsDAx9yuOcc1I
+                refreshToken:
+                    type: string
+                    format: uuid
+                    description: JWT refresh token
+                    example: e58ed763-928c-4155-bee9-fdbaaadc15f3
+        ResetPasswordRequest:
+            required:
+                - email
+                - password
+            type: object
+            properties:
+                email:
+                    type: string
+                    format: email
+                    description: User email
+                    example: ivan.ivanov@example.mail
+                password:
+                    type: string
+                    pattern: ^(?=.*[0-9])(?=.*[a-zA-Z])(?=\S+$).{8,}$
+                    description: Account new password
+                    example: ivanov10
+        ProfileResponse:
+            required:
+                - email
+                - id
+                - isActive
+                - firstName
+                - lastName
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                    description: User ID
+                    example: 1
+                firstName:
+                    type: string
+                    description: User first name
+                    example: Ivan
+                lastName:
+                    type: string
+                    description: User last name
+                    example: Ivanov
+                email:
+                    type: string
+                    format: email
+                    description: User email
+                    example: ivan.ivanov@example.mail
+                isActive:
+                    type: boolean
+                    description: Is the user activated?
+                    example: true
+        ChangeNameRequest:
+            required:
+                - firstName
+                - lastName
+            type: object
+            properties:
+                firstName:
+                    type: string
+                    description: User new first name
+                    example: Petr
+                lastName:
+                    type: string
+                    description: User new last name
+                    example: Petrov
+        ProjectRequest:
+            required:
+                - name
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: Project name
+                    example: Calculator
+                description:
+                    type: string
+                    description: Project description
+                    example: Reverse polish entry calculator
+        ProjectResponse:
+            required:
+                - id
+                - name
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                    description: Project ID
+                    example: 1
+                name:
+                    type: string
+                    description: Project name
+                    example: Calculator
+                description:
+                    type: string
+                    description: Project description
+                    example: Reverse polish entry calculator
+        TaskRequest:
+            required:
+                - name
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: Task name
+                    example: Write main algorithm
+                description:
+                    type: string
+                    description: Task description
+                    example: Write an algorithm for reverse polish notation
+        TaskResponse:
+            required:
+                - id
+                - name
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                    description: Task ID
+                    example: 1
+                name:
+                    type: string
+                    description: Task name
+                    example: Write main algorithm
+                description:
+                    type: string
+                    description: Task description
+                    example: Write an algorithm for reverse polish notation
+    securitySchemes:
+        bearerAuth:
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
