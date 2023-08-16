@@ -19,7 +19,7 @@ import ru.nsu.ccfit.petrov.dailyhelper.models.dtos.ProjectResponse;
 import ru.nsu.ccfit.petrov.dailyhelper.services.ProjectService;
 
 @RestController
-@RequestMapping("/api/v1/projects")
+@RequestMapping("/projects")
 @RequiredArgsConstructor
 public class ProjectController {
 

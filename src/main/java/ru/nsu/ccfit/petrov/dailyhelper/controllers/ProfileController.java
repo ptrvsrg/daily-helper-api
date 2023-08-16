@@ -14,7 +14,7 @@ import ru.nsu.ccfit.petrov.dailyhelper.models.dtos.ProfileResponse;
 import ru.nsu.ccfit.petrov.dailyhelper.services.ProfileService;
 
 @RestController
-@RequestMapping("/api/v1/profile")
+@RequestMapping("/profile")
 @RequiredArgsConstructor
 public class ProfileController {
 

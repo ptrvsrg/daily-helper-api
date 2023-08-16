@@ -20,7 +20,7 @@ import ru.nsu.ccfit.petrov.dailyhelper.services.TaskService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/projects/{projectName}/tasks")
+@RequestMapping("/projects/{projectName}/tasks")
 public class TaskController {
 
     private final TaskService taskService;

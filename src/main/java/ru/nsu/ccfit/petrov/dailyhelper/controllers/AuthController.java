@@ -19,7 +19,7 @@ import ru.nsu.ccfit.petrov.dailyhelper.models.dtos.RegisterResponse;
 import ru.nsu.ccfit.petrov.dailyhelper.services.AuthService;
 
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
