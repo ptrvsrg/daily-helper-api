@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import ru.nsu.ccfit.petrov.dailyhelper.services.EmailService;
-import ru.nsu.ccfit.petrov.dailyhelper.utils.EnvUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -23,10 +22,12 @@ public class EmailServiceImpl
 
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
-    private final EnvUtils envUtils;
 
     @Value("${spring.mail.username}")
     private String from;
+
+    @Value("${application.url}")
+    private String appUrl;
 
     @SneakyThrows
     @Async
@@ -47,7 +48,7 @@ public class EmailServiceImpl
     public void sendWelcomeAndActivateAccount(String to, String token) {
         Context context = new Context();
         context.setVariables(Map.of("username", to,
-                                    "host", envUtils.getHostUrl(),
+                                    "host", appUrl,
                                     "token", token));
 
         String htmlText = templateEngine.process("welcome-activation-account", context);
@@ -59,7 +60,7 @@ public class EmailServiceImpl
     public void sendConfirmPasswordChange(String to, String token) {
         Context context = new Context();
         context.setVariables(Map.of("username", to,
-                                    "host", envUtils.getHostUrl(),
+                                    "host", appUrl,
                                     "token", token));
 
         String htmlText = templateEngine.process("confirm-password-change", context);
