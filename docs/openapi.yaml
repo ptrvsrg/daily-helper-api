@@ -210,16 +210,6 @@ paths:
             responses:
                 '200':
                     description: OK - Successful verification
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/RegisterResponse'
-                            example:
-                                id: 1
-                                firstName: Ivan
-                                lastName: Ivanov
-                                email: ivan.ivanov@example.mail
-                                isActive: true
                 '400':
                     description: >-
                         BAD REQUEST - Missing required request parameter
@@ -483,7 +473,6 @@ paths:
                                 firstName: Petr
                                 lastName: Petrov
                                 email: ivan.ivanov@example.mail
-                                isActive: true
                 '400':
                     description: BAD REQUEST - JSON format is not valid
                     content:
@@ -1473,7 +1462,6 @@ components:
             required:
                 - email
                 - id
-                - isActive
                 - firstName
                 - lastName
             type: object
@@ -1496,10 +1484,6 @@ components:
                     format: email
                     description: User email
                     example: ivan.ivanov@example.mail
-                isActive:
-                    type: boolean
-                    description: Is the user activated?
-                    example: false
         LoginRequest:
             required:
                 - email
@@ -1522,7 +1506,6 @@ components:
                 - email
                 - firstName
                 - id
-                - isActive
                 - lastName
                 - refreshToken
             type: object
@@ -1545,10 +1528,6 @@ components:
                     format: email
                     description: User email
                     example: ivan.ivanov@example.mail
-                isActive:
-                    type: boolean
-                    description: Is the user activated?
-                    example: true
                 accessToken:
                     type: string
                     format: JWT
@@ -1597,7 +1576,6 @@ components:
             required:
                 - email
                 - id
-                - isActive
                 - firstName
                 - lastName
             type: object
@@ -1620,10 +1598,6 @@ components:
                     format: email
                     description: User email
                     example: ivan.ivanov@example.mail
-                isActive:
-                    type: boolean
-                    description: Is the user activated?
-                    example: true
         ChangeNameRequest:
             required:
                 - firstName
