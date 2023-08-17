@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.nsu.ccfit.petrov.dailyhelper.models.dtos.LoginRequest;
 import ru.nsu.ccfit.petrov.dailyhelper.models.dtos.LoginResponse;
-import ru.nsu.ccfit.petrov.dailyhelper.models.dtos.ResetPasswordRequest;
 import ru.nsu.ccfit.petrov.dailyhelper.models.dtos.RefreshTokensResponse;
 import ru.nsu.ccfit.petrov.dailyhelper.models.dtos.RegisterRequest;
 import ru.nsu.ccfit.petrov.dailyhelper.models.dtos.RegisterResponse;
+import ru.nsu.ccfit.petrov.dailyhelper.models.dtos.ResetPasswordRequest;
 import ru.nsu.ccfit.petrov.dailyhelper.services.AuthService;
 
 @RestController

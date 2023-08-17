@@ -8,7 +8,7 @@ public interface VerificationTokenService {
 
     String getEmail(String verificationToken);
 
-    void deleteTokens(User user);
+    void deleteTokens(String email);
 
     void deletedExpiredTokens();
 }

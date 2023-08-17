@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import ru.nsu.ccfit.petrov.dailyhelper.repositories.UserRepository;
+import ru.nsu.ccfit.petrov.dailyhelper.repositories.UserDetailsRepository;
 
 @Service
 @Transactional
@@ -14,12 +14,12 @@ import ru.nsu.ccfit.petrov.dailyhelper.repositories.UserRepository;
 public class UserDetailsServiceImpl
     implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    private final UserDetailsRepository userDetailsRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email)
         throws UsernameNotFoundException {
-        return userRepository.findByEmail(email)
+        return userDetailsRepository.findByUserEmail(email)
             .orElseThrow(() -> new UsernameNotFoundException("User " + email + " not found"));
     }
 }

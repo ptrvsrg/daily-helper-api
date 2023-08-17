@@ -54,8 +54,8 @@ public class VerificationTokenServiceImpl
     }
 
     @Override
-    public void deleteTokens(User user) {
-        verificationTokenRepository.deleteByUser(user);
+    public void deleteTokens(String email) {
+        verificationTokenRepository.deleteByUserEmail(email);
     }
 
     @Override

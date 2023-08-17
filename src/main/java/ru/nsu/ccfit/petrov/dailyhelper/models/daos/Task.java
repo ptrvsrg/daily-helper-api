@@ -1,6 +1,5 @@
 package ru.nsu.ccfit.petrov.dailyhelper.models.daos;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -31,9 +30,7 @@ public class Task {
     @Column(columnDefinition = "text")
     private String description;
 
-    @ManyToOne(cascade = CascadeType.REFRESH,
-               fetch = FetchType.EAGER)
-    @JoinColumn(name = "project_id",
-                nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false)
     private Project project;
 }

@@ -26,9 +26,6 @@ public class LoginResponse {
            message = "Email has invalid format")
     private String email;
 
-    @NotNull
-    private Boolean isActive;
-
     @NotBlank(message = "Access token cannot be null or whitespace")
     private String accessToken;
 

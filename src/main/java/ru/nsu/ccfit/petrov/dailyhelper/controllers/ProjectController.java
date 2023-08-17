@@ -25,6 +25,13 @@ public class ProjectController {
 
     private final ProjectService projectService;
 
+    @PostMapping
+    public ResponseEntity<ProjectResponse> createProject(@AuthenticationPrincipal String email,
+                                                         @Valid @RequestBody ProjectRequest projectDto) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                             .body(projectService.createProject(email, projectDto));
+    }
+
     @GetMapping
     public ResponseEntity<List<ProjectResponse>> showProjects(
         @AuthenticationPrincipal String email) {
@@ -35,13 +42,6 @@ public class ProjectController {
     public ResponseEntity<ProjectResponse> showProject(@AuthenticationPrincipal String email,
                                                        @PathVariable String projectName) {
         return ResponseEntity.ok().body(projectService.getProject(email, projectName));
-    }
-
-    @PostMapping
-    public ResponseEntity<ProjectResponse> createProject(@AuthenticationPrincipal String email,
-                                                         @Valid @RequestBody ProjectRequest projectDto) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                             .body(projectService.createProject(email, projectDto));
     }
 
     @PutMapping("/{projectName}")

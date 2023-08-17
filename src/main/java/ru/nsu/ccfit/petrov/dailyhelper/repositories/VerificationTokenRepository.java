@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import ru.nsu.ccfit.petrov.dailyhelper.models.daos.VerificationToken;
 import ru.nsu.ccfit.petrov.dailyhelper.models.daos.User;
+import ru.nsu.ccfit.petrov.dailyhelper.models.daos.VerificationToken;
 
 @Repository
 public interface VerificationTokenRepository
@@ -18,5 +18,5 @@ public interface VerificationTokenRepository
 
     List<VerificationToken> findAllByExpiredTimeBefore(Date time);
 
-    void deleteByUser(User user);
+    void deleteByUserEmail(String email);
 }
