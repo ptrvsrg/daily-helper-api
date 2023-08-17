@@ -19,55 +19,87 @@
 - Рендер писем с использованием Thymeleaf
 - Валидация данных с помощью Spring Validation
 - Документация OpenAPI
+- Развёртывание в Docker контейнерах
 
 ## Установка и настройка
 
 1. Убедитесь, что у вас установлены Java 17 и Apache Maven.
-2. Клонируйте репозиторий на свой локальный компьютер:
+2. Клонируйте репозиторий на свою локальную машину:
 
    ```bash
       git clone https://github.com/ptrvsrg/daily-helper-api.git
    ```
 
-3. Настройте параметры базы данных, указав соответствующие настройки для MariaDB и Liquibase:
+3. Настройте параметры базы данных:
 
-   ```properties
-    # application.properties
+    + **Способ 1:** Определите необходимые переменные среды:
 
-    spring.datasource.url=jdbc:mariadb://${DAILY_HELPER_DB_URL}
-    spring.datasource.username=${DAILY_HELPER_DB_USERNAME}
-    spring.datasource.password=${DAILY_HELPER_DB_PASSWORD}
+        + DAILY_HELPER_DB_AUTHORITY - хост и порт базы данных
+        + DAILY_HELPER_DB_SCHEMA_NAME - название схемы
+        + DAILY_HELPER_DB_URL - URL схемы (<хост>:<порт>/<название-схемы>)
+        + DAILY_HELPER_DB_USERNAME - имя пользователя схемы
+        + DAILY_HELPER_DB_PASSWORD - пароль пользователя схемы
 
-    spring.liquibase.url=jdbc:mariadb://${DAILY_HELPER_DB_URL}
-    spring.liquibase.user=${DAILY_HELPER_DB_USERNAME}
-    spring.liquibase.password=${DAILY_HELPER_DB_PASSWORD}
-   ```
+    + **Способ 2:** Установите параметры MariaDB и Liquibase в конфигурационном
+      файле `application.properties`:
 
-4. Настройте параметры потчы:
+       ```properties
+        # application.properties
+ 
+        #spring.datasource.url=jdbc:mariadb://${DAILY_HELPER_DB_URL}
+        spring.datasource.url=jdbc:mariadb://${DAILY_HELPER_DB_AUTHORITY}/${DAILY_HELPER_DB_SCHEMA_NAME}
+        spring.datasource.username=${DAILY_HELPER_DB_USERNAME}
+        spring.datasource.password=${DAILY_HELPER_DB_PASSWORD}
+ 
+        #spring.liquibase.url=jdbc:mariadb://${DAILY_HELPER_DB_URL}
+        spring.liquibase.url=jdbc:mariadb://${DAILY_HELPER_DB_AUTHORITY}/${DAILY_HELPER_DB_SCHEMA_NAME}
+        spring.liquibase.user=${DAILY_HELPER_DB_USERNAME}
+        spring.liquibase.password=${DAILY_HELPER_DB_PASSWORD}
+       ```
 
-   ```properties
-    # application.properties
+5. Настройте параметры потчы:
 
-    spring.mail.protocol=smtps
-    spring.mail.host=smtp.yandex.com
-    spring.mail.port=465
-    spring.mail.username=${DAILY_HELPER_MAIL_USERNAME}
-    spring.mail.password=${DAILY_HELPER_MAIL_PASSWORD}
-   ```
+    + **Способ 1:** Определите необходимые переменные среды:
 
-5. При желании измените параметры токенов:
+        + DAILY_HELPER_MAIL_PROTOCOL - протокол SMTP сервера
+        + DAILY_HELPER_MAIL_HOST - хост SMTP сервера
+        + DAILY_HELPER_MAIL_PORT - порт SMTP сервера
+        + DAILY_HELPER_MAIL_USERNAME - имя пользователя SMTP сервера
+        + DAILY_HELPER_MAIL_PASSWORD - пароль пользователя SMTP сервера
 
-   ```properties
-    # application.properties
+    + **Способ 2:** Установите параметры почты в конфигурационном
+      файле `application.properties`:
 
-    jwt.access-token.secret=${DAILY_HELPER_JWT_SECRET}
-    jwt.access-token.expired-time=3600000
-    jwt.refresh-token.expired-time=604800000
-   
-    verification.token.expired-time=3600000
-   ```
+        ```properties
+         # application.properties
+ 
+         spring.mail.protocol=${DAILY_HELPER_MAIL_PROTOCOL}
+         spring.mail.host=${DAILY_HELPER_MAIL_HOST}
+         spring.mail.port=${DAILY_HELPER_MAIL_PORT}
+         spring.mail.username=${DAILY_HELPER_MAIL_USERNAME}
+         spring.mail.password=${DAILY_HELPER_MAIL_PASSWORD}
+        ```
 
-6. Запустите приложение с помощью команды:
+6. Настройте параметры токенов:
+
+   + **Способ 1:** Определите необходимые переменные среды:
+
+      + DAILY_HELPER_JWT_SECRET - секретное слово для JWT токенов
+
+   + **Способ 2:** Установите параметры токенов в конфигурационном
+     файле `application.properties` (при желании можно изменить время действия токенов):
+
+       ```properties
+        # application.properties
+
+        jwt.access-token.secret=${DAILY_HELPER_JWT_SECRET}
+        jwt.access-token.expired-time=3600000
+        jwt.refresh-token.expired-time=604800000
+
+        verification.token.expired-time=3600000
+       ```
+
+7. Запустите приложение с помощью команды:
 
    ```bash
     mvn spring-boot:run
@@ -89,4 +121,4 @@
 
 1. Создайте форк этого репозитория.
 2. Внесите необходимые изменения.
-3. Создайте pull request, описывая ваши изменения и цель.
+3. Создайте pull request, описывая ваши изменения.
