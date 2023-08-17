@@ -122,6 +122,6 @@ public class AuthServiceImpl
         emailService.sendConfirmPasswordChange(savedUserDetails.getUser().getEmail(),
                                                verificationToken);
 
-        return modelMapper.map(savedUserDetails, RegisterResponse.class);
+        return modelMapper.map(savedUserDetails.getUser(), RegisterResponse.class);
     }
 }
