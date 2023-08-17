@@ -24,18 +24,13 @@
             </column>
         </createTable>
         <createTable tableName="refresh_tokens">
-            <column name="id"
-                    type="BIGINT"
-                    autoIncrement="true">
+            <column name="user_id"
+                    type="BIGINT">
                 <constraints primaryKey="true"
                              nullable="false"/>
             </column>
             <column name="token"
                     type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="user_id"
-                    type="BIGINT">
                 <constraints nullable="false"/>
             </column>
             <column name="expired_time"
@@ -80,6 +75,13 @@
                     type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
+        </createTable>
+        <createTable tableName="user_details">
+            <column name="user_id"
+                    type="BIGINT">
+                <constraints primaryKey="true"
+                             nullable="false"/>
+            </column>
             <column name="password"
                     type="VARCHAR(255)">
                 <constraints nullable="false"/>
@@ -90,18 +92,13 @@
             </column>
         </createTable>
         <createTable tableName="verification_tokens">
-            <column name="id"
-                    type="BIGINT"
-                    autoIncrement="true">
+            <column name="user_id"
+                    type="BIGINT">
                 <constraints primaryKey="true"
                              nullable="false"/>
             </column>
             <column name="token"
                     type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="user_id"
-                    type="BIGINT">
                 <constraints nullable="false"/>
             </column>
             <column name="expired_time"
@@ -122,40 +119,39 @@
         <addUniqueConstraint tableName="refresh_tokens"
                              columnNames="token"
                              constraintName="uk_token_to_refresh_tokens"/>
-        <addUniqueConstraint tableName="refresh_tokens"
-                             columnNames="user_id"
-                             constraintName="uk_user_id_to_refresh_tokens"/>
         <addUniqueConstraint tableName="users"
                              columnNames="email"
                              constraintName="uk_email_to_users"/>
         <addUniqueConstraint tableName="verification_tokens"
                              columnNames="token"
                              constraintName="uk_token_to_verification_tokens"/>
-        <addUniqueConstraint tableName="verification_tokens"
-                             columnNames="user_id"
-                             constraintName="uk_user_id_to_verification_tokens"/>
     </changeSet>
     <changeSet id="add_foreign_keys"
                author="ptrvsrg">
-        <addForeignKeyConstraint baseTableName="verification_tokens"
-                                 baseColumnNames="user_id"
-                                 constraintName="fk_users_to_verification_tokens"
-                                 referencedTableName="users"
-                                 referencedColumnNames="id"/>
         <addForeignKeyConstraint baseTableName="projects"
                                  baseColumnNames="user_id"
-                                 constraintName="fk_users_to_projects"
                                  referencedTableName="users"
-                                 referencedColumnNames="id"/>
+                                 referencedColumnNames="id"
+                                 constraintName="fk_user_id_from_projects_to_id_from_users"/>
         <addForeignKeyConstraint baseTableName="refresh_tokens"
                                  baseColumnNames="user_id"
-                                 constraintName="fk_users_to_refresh_tokens"
                                  referencedTableName="users"
-                                 referencedColumnNames="id"/>
+                                 referencedColumnNames="id"
+                                 constraintName="fk_user_id_from_refresh_tokens_to_id_from_users"/>
         <addForeignKeyConstraint baseTableName="tasks"
                                  baseColumnNames="project_id"
-                                 constraintName="fk_projects_to_tasks"
                                  referencedTableName="projects"
-                                 referencedColumnNames="id"/>
+                                 referencedColumnNames="id"
+                                 constraintName="fk_project_id_from_tasks_to_id_from_projects"/>
+        <addForeignKeyConstraint baseTableName="user_details"
+                                 baseColumnNames="user_id"
+                                 referencedTableName="users"
+                                 referencedColumnNames="id"
+                                 constraintName="fk_user_id_from_user_details_to_id_from_users"/>
+        <addForeignKeyConstraint baseTableName="verification_tokens"
+                                 baseColumnNames="user_id"
+                                 referencedTableName="users"
+                                 referencedColumnNames="id"
+                                 constraintName="fk_user_id_from_verification_tokens_to_id_from_users"/>
     </changeSet>
 </databaseChangeLog>
