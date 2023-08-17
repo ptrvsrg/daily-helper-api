@@ -12,7 +12,7 @@ public interface AuthService {
 
     RegisterResponse register(@Valid RegisterRequest registerRequest);
 
-    RegisterResponse verify(String activationToken);
+    void verify(String activationToken);
 
     LoginResponse login(@Valid LoginRequest loginRequest);
 

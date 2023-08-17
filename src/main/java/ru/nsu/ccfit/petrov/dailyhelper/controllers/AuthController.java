@@ -38,8 +38,9 @@ public class AuthController {
     }
 
     @GetMapping("/verify")
-    public ResponseEntity<RegisterResponse> verify(@RequestParam String token) {
-        return ResponseEntity.ok().body(authService.verify(token));
+    public ResponseEntity<Void> verify(@RequestParam String token) {
+        authService.verify(token);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/refresh-tokens")

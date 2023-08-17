@@ -62,7 +62,7 @@ public class AuthServiceImpl
     }
 
     @Override
-    public RegisterResponse verify(String verificationToken) {
+    public void verify(String verificationToken) {
         String email = verificationTokenService.getEmail(verificationToken);
         User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new UsernameNotFoundException("User " + email + " not found"));
@@ -72,8 +72,6 @@ public class AuthServiceImpl
         log.info("User {} activated", savedUser.getEmail());
 
         verificationTokenService.deleteTokens(savedUser);
-
-        return modelMapper.map(savedUser, RegisterResponse.class);
     }
 
     @Override
