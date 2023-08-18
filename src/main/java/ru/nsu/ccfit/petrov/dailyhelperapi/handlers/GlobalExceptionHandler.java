@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.mail.MailException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -21,13 +22,6 @@ import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.ErrorResponse;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedException(
-        HttpServletRequest request, HttpRequestMethodNotSupportedException e) {
-        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
-            .body(new ErrorResponse("Method not supported", e.getLocalizedMessage()));
-    }
-
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUsernameNotFoundException(HttpServletRequest request,
                                                                          UsernameNotFoundException e) {
@@ -35,25 +29,39 @@ public class GlobalExceptionHandler {
                              .body(new ErrorResponse(e.getLocalizedMessage()));
     }
 
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<ErrorResponse> handleDisabledException(HttpServletRequest request,
+                                                                 DisabledException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                             .body(new ErrorResponse(e.getLocalizedMessage()));
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleBadCredentialsException(HttpServletRequest request,
+                                                                       BadCredentialsException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                             .body(new ErrorResponse("Wrong password", e.getLocalizedMessage()));
+    }
+
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<ErrorResponse> handleNoHandlerFoundException(HttpServletRequest request,
                                                                        NoHandlerFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body(new ErrorResponse("Endpoint not found", e.getLocalizedMessage()));
+                             .body(new ErrorResponse("Endpoint not found", e.getLocalizedMessage()));
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedException(
+        HttpServletRequest request, HttpRequestMethodNotSupportedException e) {
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+                             .body(new ErrorResponse("Method not supported", e.getLocalizedMessage()));
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(
         HttpServletRequest request, HttpMessageNotReadableException e) {
         return ResponseEntity.badRequest()
-            .body(new ErrorResponse("JSON format not valid", e.getLocalizedMessage()));
-    }
-
-    @ExceptionHandler(DisabledException.class)
-    public ResponseEntity<ErrorResponse> handleDisabledException(HttpServletRequest request,
-                                                                 DisabledException e) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                             .body(new ErrorResponse(e.getLocalizedMessage()));
+                             .body(new ErrorResponse("JSON format not valid", e.getLocalizedMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -68,18 +76,18 @@ public class GlobalExceptionHandler {
             .body(new ErrorResponse("JSON format is not valid", e.getLocalizedMessage(), errors));
     }
 
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponse> handleMissingServletRequestParameterException(
+        HttpServletRequest request, MissingServletRequestParameterException e) {
+        return ResponseEntity.badRequest()
+                             .body(new ErrorResponse("Missing required request parameter", e.getLocalizedMessage()));
+    }
+
     @ExceptionHandler(MailException.class)
     public ResponseEntity<ErrorResponse> handleMailException(HttpServletRequest request,
                                                              MailException e) {
         return ResponseEntity.badRequest()
                              .body(new ErrorResponse("Failed to send email", e.getLocalizedMessage()));
-    }
-
-    @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<ErrorResponse> handleMissingServletRequestParameterException(
-        HttpServletRequest request, MissingServletRequestParameterException e) {
-        return ResponseEntity.badRequest()
-            .body(new ErrorResponse("Missing required request parameter", e.getLocalizedMessage()));
     }
 
     @ExceptionHandler(Exception.class)
