@@ -164,6 +164,10 @@ paths:
                                     value:
                                         message: User is disabled
                                         debugMessage: User is disabled
+                                Wrong password:
+                                    value:
+                                        message: Wrong password
+                                        debugMessage: Wrong password
                 '404':
                     description: NOT FOUND - User not found
                     content:
@@ -520,17 +524,87 @@ paths:
                                             Access token
                                             eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEzMzciLCJ1c2VybmFtZSI6ImJpem9uZSIsImlhdCI6MTU5NDIwOTYwMCwicm9sZSI6InVzZXIifQ.ZvkYYnyM929FM4NW9_hSis7_x3_9rymsDAx9yuOcc1I
                                             is not valid or outdated
-                '404':
-                    description: NOT FOUND - User not found
+                '500':
+                    description: INTERNAL SERVER ERROR
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ErrorResponse'
                             examples:
-                                User not found:
+                                Internal server error:
                                     value:
-                                        message: User ivan.ivanov@example.mail not found
-                                        debugMessage: User ivan.ivanov@example.mail not found
+                                        message: Internal server error
+                                        debugMessage: >-
+                                            JDBC exception executing SQL [<...>]; SQL [n/a]
+            security:
+                -   bearerAuth: [ ]
+    /api/v1/profile/edit/password:
+        put:
+            tags:
+                - Profile
+            operationId: changePassword
+            summary: Change password
+            description: Sets new password of authorized user.
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ChangePasswordRequest'
+                required: true
+            responses:
+                '200':
+                    description: OK
+                '400':
+                    description: BAD REQUEST - JSON format is not valid
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                JSON format is not valid (compact response):
+                                    value:
+                                        message: JSON format is not valid
+                                        debugMessage: >-
+                                            JSON parse error: Unexpected character
+                                            ('"' (code 34)): was expecting comma to
+                                            separate Object entries
+                                JSON format is not valid (full response):
+                                    value:
+                                        message: JSON format is not valid
+                                        debugMessage: >-
+                                            Validation failed for argument [0] in public
+                                            <...> with 1 errors: <...>
+                                        error:
+                                            - First name cannot be null or whitespace
+                '401':
+                    description: >-
+                        UNAUTHORIZED - Failed to authenticate;
+                        Access token is not valid or outdated
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                Failed to authenticate:
+                                    value:
+                                        message: Failed to authenticate
+                                        debugMessage: >-
+                                            Full authentication is required to access
+                                            this resource
+                                Access token is not valid or outdated:
+                                    value:
+                                        message: >-
+                                            Access token
+                                            eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEzMzciLCJ1c2VybmFtZSI6ImJpem9uZSIsImlhdCI6MTU5NDIwOTYwMCwicm9sZSI6InVzZXIifQ.ZvkYYnyM929FM4NW9_hSis7_x3_9rymsDAx9yuOcc1I
+                                            is not valid or outdated
+                                        debugMessage: >-
+                                            Access token
+                                            eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEzMzciLCJ1c2VybmFtZSI6ImJpem9uZSIsImlhdCI6MTU5NDIwOTYwMCwicm9sZSI6InVzZXIifQ.ZvkYYnyM929FM4NW9_hSis7_x3_9rymsDAx9yuOcc1I
+                                            is not valid or outdated
+                                Wrong password:
+                                    value:
+                                        message: Wrong password
+                                        debugMessage: Wrong password
                 '500':
                     description: INTERNAL SERVER ERROR
                     content:
@@ -614,17 +688,6 @@ paths:
                                             Access token
                                             eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEzMzciLCJ1c2VybmFtZSI6ImJpem9uZSIsImlhdCI6MTU5NDIwOTYwMCwicm9sZSI6InVzZXIifQ.ZvkYYnyM929FM4NW9_hSis7_x3_9rymsDAx9yuOcc1I
                                             is not valid or outdated
-                '404':
-                    description: NOT FOUND - User not found
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ErrorResponse'
-                            examples:
-                                User not found:
-                                    value:
-                                        message: User ivan.ivanov@example.mail not found
-                                        debugMessage: User ivan.ivanov@example.mail not found
                 '409':
                     description: CONFLICT - Project already exists
                     content:
@@ -1571,7 +1634,7 @@ components:
                     type: string
                     pattern: ^(?=.*[0-9])(?=.*[a-zA-Z])(?=\S+$).{8,}$
                     description: Account new password
-                    example: ivanov10
+                    example: ivanov1000
         ProfileResponse:
             required:
                 - email
@@ -1612,6 +1675,22 @@ components:
                     type: string
                     description: User new last name
                     example: Petrov
+        ChangePasswordRequest:
+            required:
+                - oldPassword
+                - newPassword
+            type: object
+            properties:
+                oldPassword:
+                    type: string
+                    pattern: ^(?=.*[0-9])(?=.*[a-zA-Z])(?=\S+$).{8,}$
+                    description: Account old password
+                    example: ivanov10
+                newPassword:
+                    type: string
+                    pattern: ^(?=.*[0-9])(?=.*[a-zA-Z])(?=\S+$).{8,}$
+                    description: Account new password
+                    example: ivanov1000
         ProjectRequest:
             required:
                 - name
