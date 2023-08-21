@@ -28,6 +28,13 @@ public class ProfileController {
     @PutMapping("/edit/name")
     public ResponseEntity<ProfileResponse> changeName(@AuthenticationPrincipal String email,
                                                       @Valid @RequestBody ChangeNameRequest changeNameRequest) {
-        return ResponseEntity.ok().body(profileService.changeName(email, changeNameRequest));
+        return ResponseEntity.ok().body(profileService.changeName(user, changeNameRequest));
+    }
+
+    @PutMapping("/edit/password")
+    public ResponseEntity<Void> changePassword(@AuthenticationPrincipal User user,
+                                               @Valid @RequestBody ChangePasswordRequest changePasswordRequest) {
+        profileService.changePassword(user, changePasswordRequest);
+        return ResponseEntity.ok().build();
     }
 }

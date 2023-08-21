@@ -21,6 +21,8 @@ public class ProfileServiceImpl
     implements ProfileService {
 
     private final UserRepository userRepository;
+    private final UserDetailsRepository userDetailsRepository;
+    private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
 
     @Override
@@ -42,5 +44,19 @@ public class ProfileServiceImpl
         log.info("User {} updated profile", savedUser.getEmail());
 
         return modelMapper.map(savedUser, ProfileResponse.class);
+    }
+
+    @Override
+    public void changePassword(User user, @Valid ChangePasswordRequest changePasswordRequest) {
+        CustomUserDetails userDetails = userDetailsRepository.findById(user.getId())
+            .orElseThrow(() -> new UsernameNotFoundException("User " + user.getEmail() + " not found"));
+
+        if (!passwordEncoder.matches(changePasswordRequest.getOldPassword(), userDetails.getPassword())) {
+            throw new BadCredentialsException("Wrong password");
+        }
+
+        userDetails.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
+        userDetailsRepository.save(userDetails);
+        log.info("User {} updated password", userDetails.getUser().getEmail());
     }
 }

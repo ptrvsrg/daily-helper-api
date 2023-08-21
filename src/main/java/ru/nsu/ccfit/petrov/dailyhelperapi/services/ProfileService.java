@@ -9,4 +9,6 @@ public interface ProfileService {
     ProfileResponse getProfile(String email);
 
     ProfileResponse changeName(String email, @Valid ChangeNameRequest changeNameRequest);
+
+    void changePassword(User user, @Valid ChangePasswordRequest changePasswordRequest);
 }
