@@ -10,6 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import ru.nsu.ccfit.petrov.dailyhelperapi.models.daos.Project;
 import ru.nsu.ccfit.petrov.dailyhelperapi.models.daos.Task;
+import ru.nsu.ccfit.petrov.dailyhelperapi.models.daos.User;
 import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.TaskRequest;
 import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.TaskResponse;
 import ru.nsu.ccfit.petrov.dailyhelperapi.models.exceptions.ProjectNotFoundException;
@@ -30,8 +31,8 @@ public class TaskServiceImpl
     private final ModelMapper modelMapper;
 
     @Override
-    public List<TaskResponse> getAllTasks(String email, String projectName) {
-        if (!projectRepository.existsByUserEmailAndName(email, projectName)) {
+    public List<TaskResponse> getAllTasks(User user, String projectName) {
+        if (!projectRepository.existsByUserAndName(user, projectName)) {
             throw new ProjectNotFoundException("Project " + projectName + " not found");
         }
 
@@ -42,8 +43,8 @@ public class TaskServiceImpl
     }
 
     @Override
-    public TaskResponse getTask(String email, String projectName, Long taskId) {
-        if (!projectRepository.existsByUserEmailAndName(email, projectName)) {
+    public TaskResponse getTask(User user, String projectName, Long taskId) {
+        if (!projectRepository.existsByUserAndName(user, projectName)) {
             throw new ProjectNotFoundException("Project " + projectName + " not found");
         }
 
@@ -54,24 +55,24 @@ public class TaskServiceImpl
     }
 
     @Override
-    public TaskResponse createTask(String email, String projectName,
+    public TaskResponse createTask(User user, String projectName,
                                    @Valid TaskRequest taskRequest) {
-        Project project = projectRepository.findByUserEmailAndName(email, projectName)
+        Project project = projectRepository.findByUserAndName(user, projectName)
             .orElseThrow(() -> new ProjectNotFoundException("Project " + projectName + " not found"));
 
         Task task = modelMapper.map(taskRequest, Task.class);
         task.setProject(project);
 
         Task savedTask = taskRepository.save(task);
-        log.info("User {} created task #{} of project {}", email, savedTask.getId(), projectName);
+        log.info("User {} created task #{} of project {}", user.getEmail(), savedTask.getId(), projectName);
 
         return modelMapper.map(savedTask, TaskResponse.class);
     }
 
     @Override
-    public TaskResponse updateTask(String email, String projectName, Long taskId,
+    public TaskResponse updateTask(User user, String projectName, Long taskId,
                                    @Valid TaskRequest taskRequest) {
-        if (!projectRepository.existsByUserEmailAndName(email, projectName)) {
+        if (!projectRepository.existsByUserAndName(user, projectName)) {
             throw new ProjectNotFoundException("Project " + projectName + " not found");
         }
 
@@ -82,20 +83,20 @@ public class TaskServiceImpl
         task.setDescription(taskRequest.getDescription());
 
         Task savedTask = taskRepository.save(task);
-        log.info("User {} updated task #{} of project {}", email, savedTask.getId(), projectName);
+        log.info("User {} updated task #{} of project {}", user.getEmail(), savedTask.getId(), projectName);
 
         return modelMapper.map(savedTask, TaskResponse.class);
     }
 
     @Override
-    public void deleteTask(String email, String projectName, Long taskId) {
-        if (!projectRepository.existsByUserEmailAndName(email, projectName)) {
+    public void deleteTask(User user, String projectName, Long taskId) {
+        if (!projectRepository.existsByUserAndName(user, projectName)) {
             throw new ProjectNotFoundException("Project " + projectName + " not found");
         }
         if (!taskRepository.existsByProjectNameAndId(projectName, taskId)) {
             throw new TaskNotFoundException("Task #" + taskId + " not found");
         }
         taskRepository.deleteById(taskId);
-        log.info("User {} deleted task #{} of project {}", email, taskId, projectName);
+        log.info("User {} deleted task #{} of project {}", user.getEmail(), taskId, projectName);
     }
 }

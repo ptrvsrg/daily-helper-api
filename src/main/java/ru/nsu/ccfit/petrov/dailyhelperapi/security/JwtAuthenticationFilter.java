@@ -11,9 +11,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
+import ru.nsu.ccfit.petrov.dailyhelperapi.models.daos.CustomUserDetails;
 import ru.nsu.ccfit.petrov.dailyhelperapi.services.JwtTokenService;
 
 @Component
@@ -29,9 +29,9 @@ public class JwtAuthenticationFilter
         throws IOException, ServletException {
         String accessToken = jwtTokenService.resolveAccessToken((HttpServletRequest) request);
         if (accessToken != null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(
+            CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(
                 jwtTokenService.getEmailFromAccessToken(accessToken));
-            Authentication auth = new UsernamePasswordAuthenticationToken(userDetails.getUsername(),
+            Authentication auth = new UsernamePasswordAuthenticationToken(userDetails.getUser(),
                                                                           userDetails.getPassword(),
                                                                           userDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(auth);

@@ -25,7 +25,4 @@ public class ProfileResponse {
     @Email(regexp = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$",
            message = "Email has invalid format")
     private String email;
-
-    @NotNull
-    private Boolean isActive;
 }

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.nsu.ccfit.petrov.dailyhelperapi.models.daos.User;
 import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.TaskRequest;
 import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.TaskResponse;
 import ru.nsu.ccfit.petrov.dailyhelperapi.services.TaskService;
@@ -26,39 +27,39 @@ public class TaskController {
     private final TaskService taskService;
 
     @PostMapping
-    public ResponseEntity<TaskResponse> createTask(@AuthenticationPrincipal String email,
+    public ResponseEntity<TaskResponse> createTask(@AuthenticationPrincipal User user,
                                                    @PathVariable String projectName,
                                                    @Valid @RequestBody TaskRequest taskDto) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                             .body(taskService.createTask(email, projectName, taskDto));
+                             .body(taskService.createTask(user, projectName, taskDto));
     }
 
     @GetMapping
-    public ResponseEntity<List<TaskResponse>> showTasks(@AuthenticationPrincipal String email,
+    public ResponseEntity<List<TaskResponse>> showTasks(@AuthenticationPrincipal User user,
                                                         @PathVariable String projectName) {
-        return ResponseEntity.ok().body(taskService.getAllTasks(email, projectName));
+        return ResponseEntity.ok().body(taskService.getAllTasks(user, projectName));
     }
 
     @GetMapping("/{taskId}")
-    public ResponseEntity<TaskResponse> showTask(@AuthenticationPrincipal String email,
+    public ResponseEntity<TaskResponse> showTask(@AuthenticationPrincipal User user,
                                                  @PathVariable String projectName,
                                                  @PathVariable Long taskId) {
-        return ResponseEntity.ok().body(taskService.getTask(email, projectName, taskId));
+        return ResponseEntity.ok().body(taskService.getTask(user, projectName, taskId));
     }
 
     @PutMapping("/{taskId}")
-    public ResponseEntity<TaskResponse> updateTask(@AuthenticationPrincipal String email,
+    public ResponseEntity<TaskResponse> updateTask(@AuthenticationPrincipal User user,
                                                    @PathVariable String projectName,
                                                    @PathVariable Long taskId,
                                                    @Valid @RequestBody TaskRequest taskDto) {
-        return ResponseEntity.ok().body(taskService.updateTask(email, projectName, taskId, taskDto));
+        return ResponseEntity.ok().body(taskService.updateTask(user, projectName, taskId, taskDto));
     }
 
     @DeleteMapping("/{taskId}")
-    public ResponseEntity<Void> deleteTask(@AuthenticationPrincipal String email,
+    public ResponseEntity<Void> deleteTask(@AuthenticationPrincipal User user,
                                            @PathVariable String projectName,
                                            @PathVariable Long taskId) {
-        taskService.deleteTask(email, projectName, taskId);
+        taskService.deleteTask(user, projectName, taskId);
         return ResponseEntity.noContent().build();
     }
 }

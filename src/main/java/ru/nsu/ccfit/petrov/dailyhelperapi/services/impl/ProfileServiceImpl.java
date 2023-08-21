@@ -5,11 +5,16 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import ru.nsu.ccfit.petrov.dailyhelperapi.models.daos.CustomUserDetails;
 import ru.nsu.ccfit.petrov.dailyhelperapi.models.daos.User;
 import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.ChangeNameRequest;
+import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.ChangePasswordRequest;
 import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.ProfileResponse;
+import ru.nsu.ccfit.petrov.dailyhelperapi.repositories.UserDetailsRepository;
 import ru.nsu.ccfit.petrov.dailyhelperapi.repositories.UserRepository;
 import ru.nsu.ccfit.petrov.dailyhelperapi.services.ProfileService;
 
@@ -26,17 +31,12 @@ public class ProfileServiceImpl
     private final ModelMapper modelMapper;
 
     @Override
-    public ProfileResponse getProfile(String email) {
-        User user = userRepository.findByEmail(email)
-            .orElseThrow(() -> new UsernameNotFoundException("User " + email + " not found"));
+    public ProfileResponse getProfile(User user) {
         return modelMapper.map(user, ProfileResponse.class);
     }
 
     @Override
-    public ProfileResponse changeName(String email, @Valid ChangeNameRequest changeNameRequest) {
-        User user = userRepository.findByEmail(email)
-            .orElseThrow(() -> new UsernameNotFoundException("User " + email + " not found"));
-
+    public ProfileResponse changeName(User user, @Valid ChangeNameRequest changeNameRequest) {
         user.setFirstName(changeNameRequest.getFirstName());
         user.setLastName(changeNameRequest.getLastName());
 

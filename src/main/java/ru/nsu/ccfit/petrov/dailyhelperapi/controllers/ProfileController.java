@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.nsu.ccfit.petrov.dailyhelperapi.models.daos.User;
 import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.ChangeNameRequest;
+import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.ChangePasswordRequest;
 import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.ProfileResponse;
 import ru.nsu.ccfit.petrov.dailyhelperapi.services.ProfileService;
 
@@ -21,12 +23,12 @@ public class ProfileController {
     private final ProfileService profileService;
 
     @GetMapping
-    public ResponseEntity<ProfileResponse> showProfile(@AuthenticationPrincipal String email) {
-        return ResponseEntity.ok().body(profileService.getProfile(email));
+    public ResponseEntity<ProfileResponse> showProfile(@AuthenticationPrincipal User user) {
+        return ResponseEntity.ok().body(profileService.getProfile(user));
     }
 
     @PutMapping("/edit/name")
-    public ResponseEntity<ProfileResponse> changeName(@AuthenticationPrincipal String email,
+    public ResponseEntity<ProfileResponse> changeName(@AuthenticationPrincipal User user,
                                                       @Valid @RequestBody ChangeNameRequest changeNameRequest) {
         return ResponseEntity.ok().body(profileService.changeName(user, changeNameRequest));
     }

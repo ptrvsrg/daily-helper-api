@@ -2,19 +2,20 @@ package ru.nsu.ccfit.petrov.dailyhelperapi.services;
 
 import jakarta.validation.Valid;
 import java.util.List;
+import ru.nsu.ccfit.petrov.dailyhelperapi.models.daos.User;
 import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.ProjectRequest;
 import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.ProjectResponse;
 
 public interface ProjectService {
 
-    List<ProjectResponse> getAllProjects(String email);
+    List<ProjectResponse> getAllProjects(User user);
 
-    ProjectResponse getProject(String email, String projectName);
+    ProjectResponse getProject(User user, String projectName);
 
-    ProjectResponse createProject(String email, @Valid ProjectRequest projectRequest);
+    ProjectResponse createProject(User user, @Valid ProjectRequest projectRequest);
 
-    ProjectResponse updateProject(String email, String projectName,
+    ProjectResponse updateProject(User user, String projectName,
                                   @Valid ProjectRequest projectUpdateRequest);
 
-    void deleteProject(String email, String projectName);
+    void deleteProject(User user, String projectName);
 }

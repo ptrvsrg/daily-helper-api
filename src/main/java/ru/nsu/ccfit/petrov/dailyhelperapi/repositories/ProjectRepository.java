@@ -5,16 +5,17 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import ru.nsu.ccfit.petrov.dailyhelperapi.models.daos.Project;
+import ru.nsu.ccfit.petrov.dailyhelperapi.models.daos.User;
 
 @Repository
 public interface ProjectRepository
     extends JpaRepository<Project, Long> {
 
-    List<Project> findByUserEmail(String email);
+    List<Project> findByUser(User user);
 
-    Optional<Project> findByUserEmailAndName(String email, String projectName);
+    Optional<Project> findByUserAndName(User user, String projectName);
 
-    boolean existsByUserEmailAndName(String email, String projectName);
+    boolean existsByUserAndName(User user, String projectName);
 
-    void deleteByUserEmailAndName(String email, String projectName);
+    void deleteByUserAndName(User user, String projectName);
 }

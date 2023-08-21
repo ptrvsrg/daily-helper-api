@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.nsu.ccfit.petrov.dailyhelperapi.models.daos.User;
 import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.ProjectRequest;
 import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.ProjectResponse;
 import ru.nsu.ccfit.petrov.dailyhelperapi.services.ProjectService;
@@ -26,35 +27,35 @@ public class ProjectController {
     private final ProjectService projectService;
 
     @PostMapping
-    public ResponseEntity<ProjectResponse> createProject(@AuthenticationPrincipal String email,
+    public ResponseEntity<ProjectResponse> createProject(@AuthenticationPrincipal User user,
                                                          @Valid @RequestBody ProjectRequest projectDto) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                             .body(projectService.createProject(email, projectDto));
+                             .body(projectService.createProject(user, projectDto));
     }
 
     @GetMapping
     public ResponseEntity<List<ProjectResponse>> showProjects(
-        @AuthenticationPrincipal String email) {
-        return ResponseEntity.ok().body(projectService.getAllProjects(email));
+        @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok().body(projectService.getAllProjects(user));
     }
 
     @GetMapping("/{projectName}")
-    public ResponseEntity<ProjectResponse> showProject(@AuthenticationPrincipal String email,
+    public ResponseEntity<ProjectResponse> showProject(@AuthenticationPrincipal User user,
                                                        @PathVariable String projectName) {
-        return ResponseEntity.ok().body(projectService.getProject(email, projectName));
+        return ResponseEntity.ok().body(projectService.getProject(user, projectName));
     }
 
     @PutMapping("/{projectName}")
-    public ResponseEntity<ProjectResponse> updateProject(@AuthenticationPrincipal String email,
+    public ResponseEntity<ProjectResponse> updateProject(@AuthenticationPrincipal User user,
                                                          @PathVariable String projectName,
                                                          @Valid @RequestBody ProjectRequest projectDto) {
-        return ResponseEntity.ok().body(projectService.updateProject(email, projectName, projectDto));
+        return ResponseEntity.ok().body(projectService.updateProject(user, projectName, projectDto));
     }
 
     @DeleteMapping("/{projectName}")
-    public ResponseEntity<Void> deleteProject(@AuthenticationPrincipal String email,
+    public ResponseEntity<Void> deleteProject(@AuthenticationPrincipal User user,
                                               @PathVariable String projectName) {
-        projectService.deleteProject(email, projectName);
+        projectService.deleteProject(user, projectName);
         return ResponseEntity.noContent().build();
     }
 }
