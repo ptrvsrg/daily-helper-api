@@ -2,7 +2,7 @@ package ru.nsu.ccfit.petrov.dailyhelperapi.services;
 
 import jakarta.validation.Valid;
 import java.util.List;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.daos.User;
+import ru.nsu.ccfit.petrov.dailyhelperapi.models.entities.User;
 import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.ProjectRequest;
 import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.ProjectResponse;
 

@@ -13,7 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.daos.CustomUserDetails;
+import ru.nsu.ccfit.petrov.dailyhelperapi.models.entities.CustomUserDetails;
 import ru.nsu.ccfit.petrov.dailyhelperapi.services.JwtTokenService;
 
 @Component

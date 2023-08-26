@@ -4,8 +4,8 @@ import java.util.Date;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.daos.RefreshToken;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.daos.User;
+import ru.nsu.ccfit.petrov.dailyhelperapi.models.entities.RefreshToken;
+import ru.nsu.ccfit.petrov.dailyhelperapi.models.entities.User;
 
 @Repository
 public interface RefreshTokenRepository

@@ -10,9 +10,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.daos.CustomUserDetails;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.daos.JwtTokens;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.daos.User;
+import ru.nsu.ccfit.petrov.dailyhelperapi.models.entities.CustomUserDetails;
+import ru.nsu.ccfit.petrov.dailyhelperapi.models.entities.JwtTokens;
+import ru.nsu.ccfit.petrov.dailyhelperapi.models.entities.User;
 import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.LoginRequest;
 import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.LoginResponse;
 import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.RefreshTokensResponse;

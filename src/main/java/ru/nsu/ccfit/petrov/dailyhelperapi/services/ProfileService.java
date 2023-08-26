@@ -1,7 +1,7 @@
 package ru.nsu.ccfit.petrov.dailyhelperapi.services;
 
 import jakarta.validation.Valid;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.daos.User;
+import ru.nsu.ccfit.petrov.dailyhelperapi.models.entities.User;
 import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.ChangeNameRequest;
 import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.ChangePasswordRequest;
 import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.ProfileResponse;

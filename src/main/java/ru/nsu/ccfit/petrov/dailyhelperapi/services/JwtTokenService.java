@@ -2,8 +2,8 @@ package ru.nsu.ccfit.petrov.dailyhelperapi.services;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Date;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.daos.JwtTokens;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.daos.User;
+import ru.nsu.ccfit.petrov.dailyhelperapi.models.entities.JwtTokens;
+import ru.nsu.ccfit.petrov.dailyhelperapi.models.entities.User;
 
 public interface JwtTokenService {
 

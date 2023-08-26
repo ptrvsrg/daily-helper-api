@@ -1,4 +1,4 @@
-package ru.nsu.ccfit.petrov.dailyhelperapi.models.daos;
+package ru.nsu.ccfit.petrov.dailyhelperapi.models.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

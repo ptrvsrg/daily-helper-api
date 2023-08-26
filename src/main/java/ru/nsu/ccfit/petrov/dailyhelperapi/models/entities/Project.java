@@ -1,4 +1,4 @@
-package ru.nsu.ccfit.petrov.dailyhelperapi.models.daos;
+package ru.nsu.ccfit.petrov.dailyhelperapi.models.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,17 +14,18 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "tasks")
+@Table(name = "projects")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Task {
+public class Project {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(unique = true,
+            nullable = false)
     private String name;
 
     @Column(columnDefinition = "text")
@@ -32,5 +33,5 @@ public class Task {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
-    private Project project;
+    private User user;
 }

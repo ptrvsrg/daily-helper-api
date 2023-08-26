@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.daos.User;
+import ru.nsu.ccfit.petrov.dailyhelperapi.models.entities.User;
 import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.TaskRequest;
 import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.TaskResponse;
 import ru.nsu.ccfit.petrov.dailyhelperapi.services.TaskService;

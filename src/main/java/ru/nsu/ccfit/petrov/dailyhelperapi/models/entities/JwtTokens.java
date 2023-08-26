@@ -1,4 +1,4 @@
-package ru.nsu.ccfit.petrov.dailyhelperapi.models.daos;
+package ru.nsu.ccfit.petrov.dailyhelperapi.models.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.daos.Task;
+import ru.nsu.ccfit.petrov.dailyhelperapi.models.entities.Task;
 
 @Repository
 public interface TaskRepository

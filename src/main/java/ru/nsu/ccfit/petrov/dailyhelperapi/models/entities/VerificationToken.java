@@ -1,4 +1,4 @@
-package ru.nsu.ccfit.petrov.dailyhelperapi.models.daos;
+package ru.nsu.ccfit.petrov.dailyhelperapi.models.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,11 +14,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "refresh_tokens")
+@Table(name = "verification_tokens")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RefreshToken {
+public class VerificationToken {
 
     @Id
     private Long id;
@@ -26,6 +26,9 @@ public class RefreshToken {
     @Column(nullable = false,
             unique = true)
     private String token;
+
+    @Column(nullable = false)
+    private Boolean deleteUser;
 
     @OneToOne(fetch = FetchType.EAGER)
     @MapsId
