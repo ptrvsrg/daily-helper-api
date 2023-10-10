@@ -50,7 +50,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/RegisterResponse'
+                                $ref: '#/components/schemas/ProfileResponse'
                 '400':
                     description: >-
                         BAD REQUEST - JSON format is not valid;
@@ -129,7 +129,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/LoginResponse'
+                                $ref: '#/components/schemas/TokensResponse'
                 '400':
                     description: BAD REQUEST - JSON format is not valid
                     content:
@@ -204,7 +204,7 @@ paths:
                 from a letter in the mail, the account is activated by
                 the verification token
             parameters:
-                -   name: token
+                -   name: verificationToken
                     in: query
                     required: true
                     schema:
@@ -268,7 +268,7 @@ paths:
                 on a valid refresh token. If the refresh token is not valid
                 or outdated, you will have to log in again.
             parameters:
-                -   name: token
+                -   name: refreshToken
                     in: query
                     required: true
                     schema:
@@ -281,7 +281,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/RefreshTokensResponse'
+                                $ref: '#/components/schemas/TokensResponse'
                 '400':
                     description: >-
                         BAD REQUEST - Missing required request parameter;
@@ -334,7 +334,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/ResetPasswordRequest'
+                            $ref: '#/components/schemas/LoginRequest'
                 required: true
             responses:
                 '200':
@@ -342,7 +342,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/RegisterResponse'
+                                $ref: '#/components/schemas/ProfileResponse'
                 '400':
                     description: >-
                         BAD REQUEST - JSON format is not valid;
@@ -1521,32 +1521,6 @@ components:
                     pattern: ^(?=.*[0-9])(?=.*[a-zA-Z])(?=\S+$).{8,}$
                     description: Account password
                     example: ivanov10
-        RegisterResponse:
-            required:
-                - email
-                - id
-                - firstName
-                - lastName
-            type: object
-            properties:
-                id:
-                    type: integer
-                    format: int64
-                    description: User ID
-                    example: 1
-                firstName:
-                    type: string
-                    description: User first name
-                    example: Ivan
-                lastName:
-                    type: string
-                    description: User last name
-                    example: Ivanov
-                email:
-                    type: string
-                    format: email
-                    description: User email
-                    example: ivan.ivanov@example.mail
         LoginRequest:
             required:
                 - email
@@ -1563,46 +1537,7 @@ components:
                     pattern: ^(?=.*[0-9])(?=.*[a-zA-Z])(?=\S+$).{8,}$
                     description: Account password
                     example: ivanov10
-        LoginResponse:
-            required:
-                - accessToken
-                - email
-                - firstName
-                - id
-                - lastName
-                - refreshToken
-            type: object
-            properties:
-                id:
-                    type: integer
-                    format: int64
-                    description: User ID
-                    example: 1
-                firstName:
-                    type: string
-                    description: User first name
-                    example: Ivan
-                lastName:
-                    type: string
-                    description: User last name
-                    example: Ivanov
-                email:
-                    type: string
-                    format: email
-                    description: User email
-                    example: ivan.ivanov@example.mail
-                accessToken:
-                    type: string
-                    format: JWT
-                    description: JWT access token
-                    example: >-
-                        eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjEzMzciLCJ1c2VybmFtZSI6ImJpem9uZSIsImlhdCI6MTU5NDIwOTYwMCwicm9sZSI6InVzZXIifQ.ZvkYYnyM929FM4NW9_hSis7_x3_9rymsDAx9yuOcc1I
-                refreshToken:
-                    type: string
-                    format: uuid
-                    description: JWT refresh token
-                    example: e58ed763-928c-4155-bee9-fdbaaadc15f3
-        RefreshTokensResponse:
+        TokensResponse:
             required:
                 - accessToken
                 - refreshToken
@@ -1617,37 +1552,15 @@ components:
                 refreshToken:
                     type: string
                     format: uuid
-                    description: JWT refresh token
+                    description: UUID refresh token
                     example: e58ed763-928c-4155-bee9-fdbaaadc15f3
-        ResetPasswordRequest:
-            required:
-                - email
-                - password
-            type: object
-            properties:
-                email:
-                    type: string
-                    format: email
-                    description: User email
-                    example: ivan.ivanov@example.mail
-                password:
-                    type: string
-                    pattern: ^(?=.*[0-9])(?=.*[a-zA-Z])(?=\S+$).{8,}$
-                    description: Account new password
-                    example: ivanov1000
         ProfileResponse:
             required:
                 - email
-                - id
                 - firstName
                 - lastName
             type: object
             properties:
-                id:
-                    type: integer
-                    format: int64
-                    description: User ID
-                    example: 1
                 firstName:
                     type: string
                     description: User first name
@@ -1669,11 +1582,11 @@ components:
             properties:
                 firstName:
                     type: string
-                    description: User new first name
+                    description: New user first name
                     example: Petr
                 lastName:
                     type: string
-                    description: User new last name
+                    description: New user last name
                     example: Petrov
         ChangePasswordRequest:
             required:
@@ -1684,12 +1597,12 @@ components:
                 oldPassword:
                     type: string
                     pattern: ^(?=.*[0-9])(?=.*[a-zA-Z])(?=\S+$).{8,}$
-                    description: Account old password
+                    description: Old account password
                     example: ivanov10
                 newPassword:
                     type: string
                     pattern: ^(?=.*[0-9])(?=.*[a-zA-Z])(?=\S+$).{8,}$
-                    description: Account new password
+                    description: New account password
                     example: ivanov1000
         ProjectRequest:
             required:
@@ -1706,15 +1619,9 @@ components:
                     example: Reverse polish entry calculator
         ProjectResponse:
             required:
-                - id
                 - name
             type: object
             properties:
-                id:
-                    type: integer
-                    format: int64
-                    description: Project ID
-                    example: 1
                 name:
                     type: string
                     description: Project name
