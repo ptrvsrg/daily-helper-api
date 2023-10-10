@@ -1,35 +1,27 @@
 version: "3"
 services:
     app:
-        build: deploy
-        environment:
-            DAILY_HELPER_APP_URL: ${DAILY_HELPER_APP_URL}
-            DAILY_HELPER_DB_USERNAME: ${DAILY_HELPER_DB_USERNAME}
-            DAILY_HELPER_DB_PASSWORD: ${DAILY_HELPER_DB_PASSWORD}
-            DAILY_HELPER_DB_AUTHORITY: "daily-helper-api-db:3306"
-            DAILY_HELPER_DB_SCHEMA_NAME: ${DAILY_HELPER_DB_SCHEMA_NAME}
-            DAILY_HELPER_MAIL_PROTOCOL: ${DAILY_HELPER_MAIL_PROTOCOL}
-            DAILY_HELPER_MAIL_HOST: ${DAILY_HELPER_MAIL_HOST}
-            DAILY_HELPER_MAIL_PORT: ${DAILY_HELPER_MAIL_PORT}
-            DAILY_HELPER_MAIL_USERNAME: ${DAILY_HELPER_MAIL_USERNAME}
-            DAILY_HELPER_MAIL_PASSWORD: ${DAILY_HELPER_MAIL_PASSWORD}
-            DAILY_HELPER_JWT_SECRET: ${DAILY_HELPER_JWT_SECRET}
+        image: "ptrvsrg/daily-helper-api:1.0.0"
+        container_name: "daily-helper-api-app"
+        env_file:
+            - ./.env
         ports:
             - "8080:8080"
             - "${DAILY_HELPER_MAIL_PORT}:${DAILY_HELPER_MAIL_PORT}"
+        networks:
+            - daily-helper-api-net
         depends_on:
             - db
     db:
         image: "mariadb:latest"
         container_name: "daily-helper-api-db"
-        environment:
-            MARIADB_ROOT_PASSWORD: root
-            MARIADB_USER: ${DAILY_HELPER_DB_USERNAME}
-            MARIADB_PASSWORD: ${DAILY_HELPER_DB_PASSWORD}
-            MARIADB_DATABASE: ${DAILY_HELPER_DB_SCHEMA_NAME}
-        ports:
-            - "3306:3306"
+        env_file:
+            - ./.env
         volumes:
             - "daily-helper-api-db-data:/var/lib/mysql"
+        networks:
+            - daily-helper-api-net
 volumes:
     daily-helper-api-db-data:
+networks:
+    daily-helper-api-net:
