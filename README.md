@@ -2,6 +2,24 @@
 
 ![Daily Helper Logo](https://github.com/ptrvsrg/ptrvsrg/assets/90527574/e099ed8c-623f-48e1-b3f5-2a4e7d24c7c4)
 
+<p align="center">
+   <a href="https://github.com/ptrvsrg/daily-helper-api/graphs/contributors">
+        <img alt="GitHub contributors" src="https://img.shields.io/github/contributors/ptrvsrg/daily-helper-api?label=Contributors&labelColor=222222&color=77D4FC"/>
+   </a>
+   <a href="https://github.com/ptrvsrg/daily-helper-api/forks">
+        <img alt="GitHub forks" src="https://img.shields.io/github/forks/ptrvsrg/daily-helper-api?label=Forks&labelColor=222222&color=77D4FC"/>
+   </a>
+   <a href="https://github.com/ptrvsrg/daily-helper-api/stargazers">
+        <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/ptrvsrg/daily-helper-api?label=Stars&labelColor=222222&color=77D4FC"/>
+   </a>
+   <a href="https://github.com/ptrvsrg/daily-helper-api/issues">
+        <img alt="GitHub issues" src="https://img.shields.io/github/issues/ptrvsrg/daily-helper-api?label=Issues&labelColor=222222&color=77D4FC"/>
+   </a>
+   <a href="https://github.com/ptrvsrg/daily-helper-api/pulls">
+        <img alt="GitHub pull requests" src="https://img.shields.io/github/issues-pr/ptrvsrg/daily-helper-api?label=Pull%20Requests&labelColor=222222&color=77D4FC"/>
+   </a>
+</p>
+
 Добро пожаловать в репозиторий Daily Helper! Этот проект представляет собой REST API приложение,
 разработанное для управления задачами в рамках различных проектов. Приложение позволяет создавать,
 просматривать, обновлять и удалять проекты и их задачи.
@@ -10,18 +28,27 @@
 
 - Java 17
 - Spring Boot 3
+
+- SQL
 - Spring Data JPA
 - MariaDB
 - Liquibase
+
 - Spring Security
-- JWT токены
-- Подтверждение через почту с использованием Spring Mail
-- Рендер писем с использованием Thymeleaf
-- Валидация данных с помощью Spring Validation
-- Документация OpenAPI
-- Развёртывание в Docker контейнерах
+- JWT
+
+- Spring Mail
+- Thymeleaf
+
+- Spring Validation
+
+- OpenAPI
+
+- Docker Compose
 
 ## Установка и настройка
+
+### Вручную 
 
 1. Убедитесь, что у вас установлены Java 17 и Apache Maven.
 2. Клонируйте репозиторий на свою локальную машину:
@@ -30,79 +57,45 @@
       git clone https://github.com/ptrvsrg/daily-helper-api.git
    ```
 
-3. Настройте параметры базы данных:
+3. Настройте переменные среды базы данных:
 
-    + **Способ 1:** Определите необходимые переменные среды:
+   + DAILY_HELPER_DB_AUTHORITY - хост и порт базы данных
+   + DAILY_HELPER_DB_SCHEMA_NAME - название схемы
+   + DAILY_HELPER_DB_URL - URL схемы (<хост>:<порт>/<название-схемы>)
+   + DAILY_HELPER_DB_USERNAME - имя пользователя схемы
+   + DAILY_HELPER_DB_PASSWORD - пароль пользователя схемы
 
-        + DAILY_HELPER_DB_AUTHORITY - хост и порт базы данных
-        + DAILY_HELPER_DB_SCHEMA_NAME - название схемы
-        + DAILY_HELPER_DB_URL - URL схемы (<хост>:<порт>/<название-схемы>)
-        + DAILY_HELPER_DB_USERNAME - имя пользователя схемы
-        + DAILY_HELPER_DB_PASSWORD - пароль пользователя схемы
+4. Настройте переменные среды почты:
 
-    + **Способ 2:** Установите параметры MariaDB и Liquibase в конфигурационном
-      файле `application.properties`:
+   + DAILY_HELPER_MAIL_PROTOCOL - протокол SMTP сервера
+   + DAILY_HELPER_MAIL_HOST - хост SMTP сервера
+   + DAILY_HELPER_MAIL_PORT - порт SMTP сервера
+   + DAILY_HELPER_MAIL_USERNAME - имя пользователя SMTP сервера
+   + DAILY_HELPER_MAIL_PASSWORD - пароль пользователя SMTP сервера
 
-       ```properties
-        # application.properties
- 
-        #spring.datasource.url=jdbc:mariadb://${DAILY_HELPER_DB_URL}
-        spring.datasource.url=jdbc:mariadb://${DAILY_HELPER_DB_AUTHORITY}/${DAILY_HELPER_DB_SCHEMA_NAME}
-        spring.datasource.username=${DAILY_HELPER_DB_USERNAME}
-        spring.datasource.password=${DAILY_HELPER_DB_PASSWORD}
- 
-        #spring.liquibase.url=jdbc:mariadb://${DAILY_HELPER_DB_URL}
-        spring.liquibase.url=jdbc:mariadb://${DAILY_HELPER_DB_AUTHORITY}/${DAILY_HELPER_DB_SCHEMA_NAME}
-        spring.liquibase.user=${DAILY_HELPER_DB_USERNAME}
-        spring.liquibase.password=${DAILY_HELPER_DB_PASSWORD}
-       ```
+5. Настройте переменные среды токенов:
 
-5. Настройте параметры потчы:
+   + DAILY_HELPER_JWT_SECRET - секретное слово для JWT токенов
 
-    + **Способ 1:** Определите необходимые переменные среды:
-
-        + DAILY_HELPER_MAIL_PROTOCOL - протокол SMTP сервера
-        + DAILY_HELPER_MAIL_HOST - хост SMTP сервера
-        + DAILY_HELPER_MAIL_PORT - порт SMTP сервера
-        + DAILY_HELPER_MAIL_USERNAME - имя пользователя SMTP сервера
-        + DAILY_HELPER_MAIL_PASSWORD - пароль пользователя SMTP сервера
-
-    + **Способ 2:** Установите параметры почты в конфигурационном
-      файле `application.properties`:
-
-        ```properties
-         # application.properties
- 
-         spring.mail.protocol=${DAILY_HELPER_MAIL_PROTOCOL}
-         spring.mail.host=${DAILY_HELPER_MAIL_HOST}
-         spring.mail.port=${DAILY_HELPER_MAIL_PORT}
-         spring.mail.username=${DAILY_HELPER_MAIL_USERNAME}
-         spring.mail.password=${DAILY_HELPER_MAIL_PASSWORD}
-        ```
-
-6. Настройте параметры токенов:
-
-   + **Способ 1:** Определите необходимые переменные среды:
-
-      + DAILY_HELPER_JWT_SECRET - секретное слово для JWT токенов
-
-   + **Способ 2:** Установите параметры токенов в конфигурационном
-     файле `application.properties` (при желании можно изменить время действия токенов):
-
-       ```properties
-        # application.properties
-
-        jwt.access-token.secret=${DAILY_HELPER_JWT_SECRET}
-        jwt.access-token.expired-time=3600000
-        jwt.refresh-token.expired-time=604800000
-
-        verification.token.expired-time=3600000
-       ```
-
-7. Запустите приложение с помощью команды:
+6. Запустите приложение с помощью команды:
 
    ```bash
     mvn spring-boot:run
+   ```
+   
+### Docker Compose
+
+1. Клонируйте репозиторий на свою локальную машину:
+
+   ```bash
+      git clone https://github.com/ptrvsrg/daily-helper-api.git
+   ```
+
+2. Добавьте значения переменных среды в файл [sample.env](./sample.env) и переименуйте его в .env
+3. Запустите контейнеры с помощью команды:
+
+   ```bash
+    sudo docker compose up -d
    ```
 
 ## Документация API
