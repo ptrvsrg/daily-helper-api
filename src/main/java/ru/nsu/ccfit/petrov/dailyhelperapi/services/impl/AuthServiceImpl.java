@@ -10,16 +10,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.entities.CustomUserDetails;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.entities.JwtTokens;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.entities.User;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.LoginRequest;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.LoginResponse;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.RefreshTokensResponse;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.RegisterRequest;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.RegisterResponse;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.ResetPasswordRequest;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.exceptions.UserAlreadyExistException;
+import ru.nsu.ccfit.petrov.dailyhelperapi.dtos.AuthDTO;
+import ru.nsu.ccfit.petrov.dailyhelperapi.dtos.TokensDTO;
+import ru.nsu.ccfit.petrov.dailyhelperapi.dtos.UserDTO;
+import ru.nsu.ccfit.petrov.dailyhelperapi.models.CustomUserDetails;
+import ru.nsu.ccfit.petrov.dailyhelperapi.models.JwtTokens;
+import ru.nsu.ccfit.petrov.dailyhelperapi.models.User;
+import ru.nsu.ccfit.petrov.dailyhelperapi.exceptions.UserAlreadyExistException;
 import ru.nsu.ccfit.petrov.dailyhelperapi.repositories.UserDetailsRepository;
 import ru.nsu.ccfit.petrov.dailyhelperapi.repositories.UserRepository;
 import ru.nsu.ccfit.petrov.dailyhelperapi.services.AuthService;
@@ -44,18 +41,18 @@ public class AuthServiceImpl
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public RegisterResponse register(@Valid RegisterRequest registerRequest) {
-        if (userRepository.existsByEmail(registerRequest.getEmail())) {
+    public UserDTO register(@Valid UserDTO userDTO) {
+        if (userRepository.existsByEmail(userDTO.getEmail())) {
             throw new UserAlreadyExistException(
-                "User " + registerRequest.getEmail() + " already exists");
+                "User " + userDTO.getEmail() + " already exists");
         }
 
-        User user = modelMapper.map(registerRequest, User.class);
+        User user = modelMapper.map(userDTO, User.class);
         User savedUser = userRepository.save(user);
 
         CustomUserDetails userDetails = new CustomUserDetails();
         userDetails.setUser(savedUser);
-        userDetails.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+        userDetails.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         userDetails.setIsActive(false);
 
         CustomUserDetails savedUserDetails = userDetailsRepository.save(userDetails);
@@ -64,7 +61,7 @@ public class AuthServiceImpl
         String verificationToken = verificationTokenService.createToken(savedUser, true);
         emailService.sendWelcomeAndActivateAccount(savedUser.getEmail(), verificationToken);
 
-        return modelMapper.map(savedUser, RegisterResponse.class);
+        return modelMapper.map(savedUser, UserDTO.class);
     }
 
     @Override
@@ -81,37 +78,31 @@ public class AuthServiceImpl
     }
 
     @Override
-    public LoginResponse login(@Valid LoginRequest loginRequest) {
-        User user = userRepository.findByEmail(loginRequest.getEmail())
-            .orElseThrow(() -> new UsernameNotFoundException("User " + loginRequest.getEmail() + " not found"));
+    public TokensDTO login(@Valid AuthDTO authDTO) {
+        User user = userRepository.findByEmail(authDTO.getEmail())
+            .orElseThrow(() -> new UsernameNotFoundException("User " + authDTO.getEmail() + " not found"));
 
         authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
-                                                    loginRequest.getPassword()));
-        log.info("User {} logged in", loginRequest.getEmail());
+            new UsernamePasswordAuthenticationToken(authDTO.getEmail(), authDTO.getPassword()));
+        log.info("User {} logged in", authDTO.getEmail());
 
         JwtTokens tokens = jwtTokenService.createTokens(user);
-
-        LoginResponse loginResponse = modelMapper.map(user, LoginResponse.class);
-        loginResponse.setAccessToken(tokens.getAccessToken());
-        loginResponse.setRefreshToken(tokens.getRefreshToken());
-        return loginResponse;
+        return modelMapper.map(tokens, TokensDTO.class);
     }
 
     @Override
-    public RefreshTokensResponse refreshTokens(String refreshToken) {
+    public TokensDTO refreshTokens(String refreshToken) {
         JwtTokens tokens = jwtTokenService.refreshTokens(refreshToken);
-        log.info("Created a new pair of JWT tokens by refresh token {}", refreshToken);
-        return modelMapper.map(tokens, RefreshTokensResponse.class);
+        return modelMapper.map(tokens, TokensDTO.class);
     }
 
     @Override
-    public RegisterResponse resetPassword(@Valid ResetPasswordRequest resetPasswordRequest) {
+    public UserDTO resetPassword(@Valid AuthDTO authDTO) {
         CustomUserDetails userDetails = userDetailsRepository
-            .findByUserEmail(resetPasswordRequest.getEmail())
-            .orElseThrow(() -> new UsernameNotFoundException("User " + resetPasswordRequest.getEmail() + " not found"));
+            .findByUserEmail(authDTO.getEmail())
+            .orElseThrow(() -> new UsernameNotFoundException("User " + authDTO.getEmail() + " not found"));
 
-        userDetails.setPassword(passwordEncoder.encode(resetPasswordRequest.getPassword()));
+        userDetails.setPassword(passwordEncoder.encode(authDTO.getPassword()));
         userDetails.setIsActive(false);
 
         CustomUserDetails savedUserDetails = userDetailsRepository.save(userDetails);
@@ -122,6 +113,6 @@ public class AuthServiceImpl
         emailService.sendConfirmPasswordChange(savedUserDetails.getUser().getEmail(),
                                                verificationToken);
 
-        return modelMapper.map(savedUserDetails.getUser(), RegisterResponse.class);
+        return modelMapper.map(savedUserDetails.getUser(), UserDTO.class);
     }
 }

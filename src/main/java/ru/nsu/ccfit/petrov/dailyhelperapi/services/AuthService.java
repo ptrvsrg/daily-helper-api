@@ -1,22 +1,19 @@
 package ru.nsu.ccfit.petrov.dailyhelperapi.services;
 
 import jakarta.validation.Valid;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.LoginRequest;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.LoginResponse;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.RefreshTokensResponse;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.RegisterRequest;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.RegisterResponse;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.ResetPasswordRequest;
+import ru.nsu.ccfit.petrov.dailyhelperapi.dtos.AuthDTO;
+import ru.nsu.ccfit.petrov.dailyhelperapi.dtos.TokensDTO;
+import ru.nsu.ccfit.petrov.dailyhelperapi.dtos.UserDTO;
 
 public interface AuthService {
 
-    RegisterResponse register(@Valid RegisterRequest registerRequest);
+    UserDTO register(@Valid UserDTO userDTO);
 
     void verify(String activationToken);
 
-    LoginResponse login(@Valid LoginRequest loginRequest);
+    TokensDTO login(@Valid AuthDTO authDTO);
 
-    RefreshTokensResponse refreshTokens(String refreshToken);
+    TokensDTO refreshTokens(String refreshToken);
 
-    RegisterResponse resetPassword(@Valid ResetPasswordRequest resetPasswordRequest);
+    UserDTO resetPassword(@Valid AuthDTO authDTO);
 }

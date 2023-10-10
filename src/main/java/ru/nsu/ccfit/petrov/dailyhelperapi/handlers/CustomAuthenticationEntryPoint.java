@@ -7,7 +7,7 @@ import java.io.IOException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.ErrorResponse;
+import ru.nsu.ccfit.petrov.dailyhelperapi.controllers.responses.ErrorResponse;
 
 public class CustomAuthenticationEntryPoint
     implements AuthenticationEntryPoint {

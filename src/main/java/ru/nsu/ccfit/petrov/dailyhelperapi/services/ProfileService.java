@@ -1,16 +1,19 @@
 package ru.nsu.ccfit.petrov.dailyhelperapi.services;
 
 import jakarta.validation.Valid;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.entities.User;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.ChangeNameRequest;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.ChangePasswordRequest;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.ProfileResponse;
+import ru.nsu.ccfit.petrov.dailyhelperapi.dtos.ChangeNameDTO;
+import ru.nsu.ccfit.petrov.dailyhelperapi.dtos.ChangePasswordDTO;
+import ru.nsu.ccfit.petrov.dailyhelperapi.dtos.UserDTO;
+import ru.nsu.ccfit.petrov.dailyhelperapi.models.User;
+import ru.nsu.ccfit.petrov.dailyhelperapi.controllers.requests.ChangeNameRequest;
+import ru.nsu.ccfit.petrov.dailyhelperapi.controllers.requests.ChangePasswordRequest;
+import ru.nsu.ccfit.petrov.dailyhelperapi.controllers.responses.ProfileResponse;
 
 public interface ProfileService {
 
-    ProfileResponse getProfile(User user);
+    UserDTO getProfile(User user);
 
-    ProfileResponse changeName(User user, @Valid ChangeNameRequest changeNameRequest);
+    UserDTO changeName(User user, @Valid ChangeNameDTO changeNameDTO);
 
-    void changePassword(User user, @Valid ChangePasswordRequest changePasswordRequest);
+    void changePassword(User user, @Valid ChangePasswordDTO changePasswordDTO);
 }

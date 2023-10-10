@@ -1,6 +1,6 @@
 package ru.nsu.ccfit.petrov.dailyhelperapi.services;
 
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.entities.User;
+import ru.nsu.ccfit.petrov.dailyhelperapi.models.User;
 
 public interface VerificationTokenService {
 

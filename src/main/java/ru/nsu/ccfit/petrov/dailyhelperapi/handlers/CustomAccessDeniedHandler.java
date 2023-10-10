@@ -7,7 +7,7 @@ import java.io.IOException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.dtos.ErrorResponse;
+import ru.nsu.ccfit.petrov.dailyhelperapi.controllers.responses.ErrorResponse;
 
 public class CustomAccessDeniedHandler
     implements AccessDeniedHandler {

@@ -16,10 +16,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.entities.JwtTokens;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.entities.RefreshToken;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.entities.User;
-import ru.nsu.ccfit.petrov.dailyhelperapi.models.exceptions.JwtTokenException;
+import ru.nsu.ccfit.petrov.dailyhelperapi.models.JwtTokens;
+import ru.nsu.ccfit.petrov.dailyhelperapi.models.RefreshToken;
+import ru.nsu.ccfit.petrov.dailyhelperapi.models.User;
+import ru.nsu.ccfit.petrov.dailyhelperapi.exceptions.JwtTokenException;
 import ru.nsu.ccfit.petrov.dailyhelperapi.repositories.RefreshTokenRepository;
 import ru.nsu.ccfit.petrov.dailyhelperapi.repositories.UserRepository;
 import ru.nsu.ccfit.petrov.dailyhelperapi.services.JwtTokenService;
@@ -30,8 +30,6 @@ import ru.nsu.ccfit.petrov.dailyhelperapi.services.JwtTokenService;
 public class JwtTokenServiceImpl
     implements JwtTokenService {
 
-    private final UserDetailsService userDetailsService;
-    private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
 
     @Value("${jwt.access-token.secret}")
@@ -72,7 +70,7 @@ public class JwtTokenServiceImpl
                        .getBody()
                        .getSubject();
         } catch (JwtException e) {
-            throw new JwtTokenException("Access token " + accessToken + " not valid or outdated");
+            throw new JwtTokenException("Access token not valid or outdated");
         }
     }
 
@@ -85,7 +83,7 @@ public class JwtTokenServiceImpl
                        .getBody()
                        .getExpiration();
         } catch (JwtException e) {
-            throw new JwtTokenException("Access token " + accessToken + " not valid or outdated");
+            throw new JwtTokenException("Access token not valid or outdated");
         }
     }
 
@@ -94,8 +92,7 @@ public class JwtTokenServiceImpl
         RefreshToken token = refreshTokenRepository
             .findByTokenAndExpiredTimeAfter(refreshToken, new Date())
             .orElseThrow(() -> new JwtTokenException("Refresh token " + refreshToken + " not valid or outdated"));
-        JwtTokens tokens = createTokens(token.getUser());
-        return tokens;
+        return createTokens(token.getUser());
     }
 
     private String createAccessToken(User user) {
