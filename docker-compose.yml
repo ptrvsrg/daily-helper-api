@@ -1,7 +1,7 @@
 version: "3"
 services:
     app:
-        build: ./
+        build: deploy
         environment:
             DAILY_HELPER_APP_URL: ${DAILY_HELPER_APP_URL}
             DAILY_HELPER_DB_USERNAME: ${DAILY_HELPER_DB_USERNAME}
