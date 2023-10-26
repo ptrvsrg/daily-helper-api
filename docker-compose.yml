@@ -6,7 +6,7 @@ services:
         env_file:
             - ./.env
         ports:
-            - "8080:8080"
+            - "${DAILY_HELPER_PORT}:8080"
             - "${DAILY_HELPER_MAIL_PORT}:${DAILY_HELPER_MAIL_PORT}"
         networks:
             - daily-helper-api-net
