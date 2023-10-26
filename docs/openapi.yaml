@@ -9,6 +9,8 @@ info:
         name: Sergey Petrov
         url: https://github.com/ptrvsrg
 servers:
+    - url: http://daily-helper-api.petrov-projects.ru
+      description: Remotely deployed application
     -   url: http://localhost:8080
         description: Locally deployed application
 tags:
