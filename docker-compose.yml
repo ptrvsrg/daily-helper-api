@@ -15,6 +15,7 @@ services:
     db:
         image: "mariadb:latest"
         container_name: "daily-helper-api-db"
+        restart: unless-stopped
         env_file:
             - ./.env
         volumes:
